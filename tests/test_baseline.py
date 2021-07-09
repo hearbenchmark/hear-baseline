@@ -104,7 +104,11 @@ class TestEmbeddingsTimestamps:
         # of samples, so we don't need to subtract that in that test.
         hop_size_ms = baseline.HOP_SIZE
         hop_size_samples = int(hop_size_ms / 1000.0 * self.sample_rate)
-        assert self.embeddings_ct.shape == (64, 96000 // hop_size_samples + 1, int(4096))
+        assert self.embeddings_ct.shape == (
+            64,
+            96000 // hop_size_samples + 1,
+            int(4096),
+        )
 
     def test_embeddings_nan(self):
         # Test for null values in the embeddings.

@@ -92,7 +92,10 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
     if model_file_path != "":
         loaded_model = torch.load(model_file_path)
         if not isinstance(loaded_model, OrderedDict):
-            raise TypeError(f"Loaded model must be a model state dict of type OrderedDict. Received {type(loaded_model)}")
+            raise TypeError(
+                f"Loaded model must be a model state dict of type OrderedDict. "
+                f"Received {type(loaded_model)}"
+            )
 
         model.load_state_dict(loaded_model)
 
