@@ -79,7 +79,7 @@ class RandomProjectionMelEmbedding(torch.nn.Module):
 
 def load_model(model_file_path: str = "") -> torch.nn.Module:
     """
-    In this baseline, we don't load anything from disk.
+    Returns a torch.nn.Module that produces embeddings for a frame of audio.
 
     Args:
         model_file_path: Load model checkpoint from this file path. For this baseline,
