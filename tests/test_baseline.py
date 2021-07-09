@@ -10,7 +10,7 @@ from hearbaseline import (
     get_timestamp_embeddings,
 )
 from hearbaseline.util import frame_audio
-import hearbaseline.baseline as baseline
+import hearbaseline.naive as baseline
 
 
 torch.backends.cudnn.deterministic = True
