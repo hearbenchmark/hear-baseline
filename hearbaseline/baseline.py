@@ -4,6 +4,7 @@ Baseline model for HEAR 2021 NeurIPS competition.
 This is simply a mel spectrogram followed by random projection.
 """
 
+from collections import OrderedDict
 import math
 from typing import Tuple
 
@@ -87,11 +88,13 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
     Returns:
         Model: torch.nn.Module loaded on the specified device.
     """
-    if model_file_path == "":
-        model = RandomProjectionMelEmbedding()
-    else:
-        # TODO: implement loading weights from disk
-        raise NotImplementedError("Loading model weights not implemented yet")
+    model = RandomProjectionMelEmbedding()
+    if model_file_path != "":
+        loaded_model = torch.load(model_file_path)
+        if not isinstance(loaded_model, OrderedDict):
+            raise TypeError(f"Loaded model must be a model state dict of type OrderedDict. Received {type(loaded_model)}")
+
+        model.load_state_dict(loaded_model)
 
     return model
 
