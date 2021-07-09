@@ -17,14 +17,21 @@ setup(
         "Bug Tracker": "https://github.com/neuralaudio/hear-baseline/issues",
         "Source Code": "https://github.com/neuralaudio/hear-baseline",
     },
-    packages=find_packages(),
+    packages=find_packages(exclude=("tests",)),
     python_requires=">=3.6",
     install_requires=["librosa", "torch"],
     extras_require={
-        # Developer requirements
+        "test": [
+            "pytest",
+            "pytest-cov",
+            "pytest-env",
+        ],
         "dev": [
             "pre-commit",
             "black",  # Used in pre-commit hooks
+            "pytest",
+            "pytest-cov",
+            "pytest-env",
         ],
     },
 )
