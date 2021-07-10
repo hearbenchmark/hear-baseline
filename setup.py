@@ -8,7 +8,7 @@ setup(
     version="2021.0.1",
     description="Holistic Evaluation of Audio Representations (HEAR) 2021 -- Baseline Model",
     author="HEAR 2021 NeurIPS Competition Committee",
-    author_email="deep-at-neuralaudio.ai",
+    author_email="deep@neuralaudio.ai",
     url="https://github.com/neuralaudio/hear-baseline",
     license="Apache-2.0",
     long_description=long_description,
