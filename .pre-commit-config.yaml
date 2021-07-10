@@ -1,0 +1,8 @@
+repos:
+# Black is a code formatter that ensures consistent code styling
+# The pre-commit hook runs it before a commit to ensure that code conforms
+-   repo: https://github.com/psf/black
+    rev: 21.5b0
+    hooks:
+    -   id: black
+        language_version: python3
