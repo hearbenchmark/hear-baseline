@@ -34,7 +34,7 @@ def frame_audio(
     audio = tf.pad(audio, paddings)
 
     # Split into frames
-    frame_step = int(hop_size / 1000.0 * sample_rate)
+    frame_step = int(round(hop_size / 1000.0 * sample_rate))
     frames = tf.signal.frame(audio, frame_length=frame_size, frame_step=frame_step)
 
     # Timestamps in ms corresponding to each frame
