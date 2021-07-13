@@ -124,7 +124,8 @@ class TestEmbeddingsTimestamps:
 
     def test_timestamps_spacing(self):
         # Test the spacing between the time stamp
-        assert torch.all(torch.abs(torch.diff(self.ts_ct) - self.ts_ct[1]) < 1e-5)
+        diff = torch.diff(self.ts_ct)
+        assert torch.mean(diff) - self.ts_ct[1] < 1e-5
 
 
 class TestModel:
@@ -172,10 +173,11 @@ class TestFraming:
             audio, frame_size=frame_size, hop_size=hop_size_ms, sample_rate=sr
         )
 
-        hop_size_samples = int(hop_size_ms / 1000.0 * sr)
+        hop_size_samples = int(round(hop_size_ms / 1000.0 * sr))
         expected_frames = (sr * duration // hop_size_samples) + 1
         expected_frames_shape = (num_audio, expected_frames, frame_size)
-        expected_timestamps = np.arange(0.0, duration * 1000.0 + 0.0001, 25.0)
+        expected_timestamps = np.arange(0, expected_frames)
+        expected_timestamps = expected_timestamps * hop_size_samples / sr * 1000.0
 
         assert expected_frames_shape == frames.shape
-        assert np.all(expected_timestamps == timestamps.detach().cpu().numpy())
+        assert np.allclose(expected_timestamps, timestamps.detach().cpu().numpy())
