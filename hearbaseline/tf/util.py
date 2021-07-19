@@ -4,14 +4,12 @@ Utility functions for hear-kit
 
 from typing import Tuple
 
-import torch
-import torch.nn.functional as F
-from torch import Tensor
+import tensorflow as tf
 
 
 def frame_audio(
-    audio: Tensor, frame_size: int, hop_size: float, sample_rate: int
-) -> Tuple[Tensor, Tensor]:
+    audio: tf.Tensor, frame_size: int, hop_size: float, sample_rate: int
+) -> Tuple[tf.Tensor, tf.Tensor]:
     """
     Slices input audio into frames that are centered and occur every
     sample_rate * hop_size samples. We round to the nearest sample.
@@ -32,26 +30,16 @@ def frame_audio(
     # Zero pad the beginning and the end of the incoming audio with half a frame number
     # of samples. This centers the audio in the middle of each frame with respect to
     # the timestamps.
-    audio = F.pad(audio, (frame_size // 2, frame_size - frame_size // 2))
-    num_padded_samples = audio.shape[1]
+    paddings = tf.constant([[0, 0], [frame_size // 2, frame_size - frame_size // 2]])
+    audio = tf.pad(audio, paddings)
 
+    # Split into frames
     frame_step = int(round(hop_size / 1000.0 * sample_rate))
-    frame_number = 0
-    frames = []
-    timestamps = []
-    frame_start = 0
-    frame_end = frame_size
-    while True:
-        frames.append(audio[:, frame_start:frame_end])
-        timestamps.append(frame_number * frame_step / sample_rate * 1000.0)
+    frames = tf.signal.frame(audio, frame_length=frame_size, frame_step=frame_step)
 
-        # Increment the frame_number and break the loop if the next frame end
-        # will extend past the end of the padded audio samples
-        frame_number += 1
-        frame_start = frame_number * frame_step
-        frame_end = frame_start + frame_size
+    # Timestamps in ms corresponding to each frame
+    num_frames = frames.shape[1]
+    timestamps = tf.range(0, num_frames, dtype=tf.float32) * frame_step
+    timestamps = timestamps / sample_rate * 1000.0
 
-        if not frame_end <= num_padded_samples:
-            break
-
-    return torch.stack(frames, dim=1), torch.tensor(timestamps, dtype=torch.float32)
+    return frames, timestamps
