@@ -115,10 +115,10 @@ def get_timestamp_embeddings(
         model: Loaded model.
 
     Returns:
-        - Tensor: embeddings, A float32 Tensor with shape (n_sounds, n_timestamp,
+        - Tensor: embeddings, A float32 Tensor with shape (n_sounds, n_timestamps,
             model.timestamp_embedding_size).
         - Tensor: timestamps, Centered timestamps in milliseconds corresponding
-            to each embedding in the output.
+            to each embedding in the output. Shape: (n_sounds, n_timestamps).
     """
 
     # Assert audio is of correct shape

@@ -25,8 +25,8 @@ def frame_audio(
 
     Returns:
         - A Tensor of shape (batch_size, num_frames, frame_size)
-        - A 1d Tensor of timestamps corresponding to the frame
-        centers.
+        - A Tensor of timestamps corresponding to the frame centers with shape:
+            (batch_size, num_frames).
     """
 
     # Zero pad the beginning and the end of the incoming audio with half a frame number
