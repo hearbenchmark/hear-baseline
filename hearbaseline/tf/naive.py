@@ -156,7 +156,8 @@ def get_scene_embeddings(
         model: Loaded model.
 
     Returns:
-        - embeddings, A float32 Tensor with shape (n_sounds, model.scene_embedding_size).
+        - embeddings, A float32 Tensor with shape
+            (n_sounds, model.scene_embedding_size).
     """
     embeddings, _ = get_timestamp_embeddings(audio, model)
     embeddings = tf.reduce_mean(embeddings, axis=1)
