@@ -23,8 +23,8 @@ def frame_audio(
 
     Returns:
         - A Tensor of shape (batch_size, num_frames, frame_size)
-        - A 1d Tensor of timestamps corresponding to the frame
-        centers.
+        - A Tensor of timestamps corresponding to the frame centers with shape:
+            (batch_size, num_frames).
     """
 
     # Zero pad the beginning and the end of the incoming audio with half a frame number
@@ -41,5 +41,9 @@ def frame_audio(
     num_frames = frames.shape[1]
     timestamps = tf.range(0, num_frames, dtype=tf.float32) * frame_step
     timestamps = timestamps / sample_rate * 1000.0
+
+    # Expand out timestamps to shape (batch_size, num_frames)
+    timestamps = tf.expand_dims(timestamps, axis=0)
+    timestamps = tf.repeat(timestamps, repeats=[audio.shape[0]], axis=0)
 
     return frames, timestamps
