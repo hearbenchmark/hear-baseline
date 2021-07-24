@@ -110,6 +110,10 @@ class TestEmbeddingsTimestamps:
             int(4096),
         )
 
+    def test_timestamps_shape(self):
+        # Make sure the timestamps have the correct shape
+        assert self.embeddings_ct.shape[:2] == self.ts_ct.shape
+
     def test_embeddings_nan(self):
         # Test for null values in the embeddings.
         assert not torch.any(torch.isnan(self.embeddings_ct))
@@ -119,13 +123,14 @@ class TestEmbeddingsTimestamps:
         assert self.embeddings_ct.dtype == torch.float32
 
     def test_timestamps_begin(self):
-        # Test the beginning of the time stamp
-        assert self.ts_ct[0] == 0
+        # Test the beginning of the time stamp. Should be zero for all
+        # timestamps in the batch
+        assert torch.all(self.ts_ct[:, 0] == 0)
 
     def test_timestamps_spacing(self):
         # Test the spacing between the time stamp
         diff = torch.diff(self.ts_ct)
-        assert torch.mean(diff) - self.ts_ct[1] < 1e-5
+        assert torch.all(torch.mean(diff) - self.ts_ct[:, 1] < 1e-5)
 
 
 class TestModel:
