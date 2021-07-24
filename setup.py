@@ -19,7 +19,12 @@ setup(
     },
     packages=find_packages(exclude=("tests",)),
     python_requires=">=3.6",
-    install_requires=["librosa", "torch"],
+    install_requires=[
+        "librosa",
+        "numpy",
+        "tensorflow",
+        "torch",
+    ],
     extras_require={
         "test": [
             "pytest",

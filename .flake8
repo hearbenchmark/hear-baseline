@@ -5,3 +5,6 @@ max-line-length = 88
 extend-ignore =
     # See https://github.com/PyCQA/pycodestyle/issues/373
     E203,
+per-file-ignores =
+    # Allow unused imports in __init__.py
+    __init__.py:F401,
