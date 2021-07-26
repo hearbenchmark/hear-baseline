@@ -124,7 +124,7 @@ def get_timestamp_embeddings(
     # Assert audio is of correct shape
     if audio.ndim != 2:
         raise ValueError(
-            "audio input tensor must be 2D with shape (batch_size, num_samples)"
+            "audio input tensor must be 2D with shape (n_sounds, num_samples)"
         )
 
     # Make sure the correct model type was passed in
