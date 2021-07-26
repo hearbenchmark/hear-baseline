@@ -41,7 +41,6 @@ class RandomProjectionMelEmbedding(torch.nn.Module):
 
     def __init__(self):
         super().__init__()
-        torch.random.manual_seed(self.seed)
 
         # Create a Hann window buffer to apply to frames prior to FFT.
         self.register_buffer("window", torch.hann_window(self.n_fft))
@@ -52,11 +51,13 @@ class RandomProjectionMelEmbedding(torch.nn.Module):
         )
         self.register_buffer("mel_scale", mel_scale)
 
-        # Projection matrices.
-        normalization = math.sqrt(self.n_mels)
-        self.projection = torch.nn.Parameter(
-            torch.rand(self.n_mels, self.embedding_size) / normalization
-        )
+        # Linear projection initialized using a normal distribution. We seed the rng
+        # for determinism and then return the rng to its previous state.
+        rng_state = torch.get_rng_state()
+        torch.manual_seed(self.seed)
+        self.projection = torch.nn.Linear(self.n_mels, self.embedding_size, bias=False)
+        torch.nn.init.normal_(self.projection.weight)
+        torch.set_rng_state(rng_state)
 
     def forward(self, x: Tensor):
         # Compute the real-valued Fourier transform on windowed input signal.
@@ -72,7 +73,7 @@ class RandomProjectionMelEmbedding(torch.nn.Module):
         x = torch.log(x + self.epsilon)
 
         # Apply projection to get a 4096 dimension embedding
-        embedding = x.matmul(self.projection)
+        embedding = self.projection(x)
 
         return embedding
 
