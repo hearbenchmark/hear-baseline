@@ -5,7 +5,7 @@ long_description = open("README.md", "r", encoding="utf-8").read()
 
 setup(
     name="hearbaseline",
-    version="2021.0.1",
+    version="2021.0.2",
     description="Holistic Evaluation of Audio Representations (HEAR) 2021 -- Baseline Model",
     author="HEAR 2021 NeurIPS Competition Committee",
     author_email="deep@neuralaudio.ai",
