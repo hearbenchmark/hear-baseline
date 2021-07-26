@@ -23,7 +23,7 @@ This is the same method that will be used to by competition organizers when inst
 submissions to HEAR 2021.
 ```python
 git clone https://github.com/neuralaudio/hear-baseline.git
-python3 -m pip install ./hear-baseline
+python3 -m pip install -e ./hear-baseline
 ```
 
 ### Naive Baseline Model
