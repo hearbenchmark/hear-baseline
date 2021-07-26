@@ -115,16 +115,16 @@ def get_timestamp_embeddings(
         model: Loaded model.
 
     Returns:
-        - Tensor: embeddings, A float32 Tensor with shape (n_sounds, n_timestamp,
+        - Tensor: embeddings, A float32 Tensor with shape (n_sounds, n_timestamps,
             model.timestamp_embedding_size).
         - Tensor: timestamps, Centered timestamps in milliseconds corresponding
-            to each embedding in the output.
+            to each embedding in the output. Shape: (n_sounds, n_timestamps).
     """
 
     # Assert audio is of correct shape
     if audio.ndim != 2:
         raise ValueError(
-            "audio input tensor must be 2D with shape (batch_size, num_samples)"
+            "audio input tensor must be 2D with shape (n_sounds, num_samples)"
         )
 
     # Make sure the correct model type was passed in
