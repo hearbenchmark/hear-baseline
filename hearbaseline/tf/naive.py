@@ -7,6 +7,7 @@ This is simply a mel spectrogram followed by random projection.
 from typing import Tuple
 
 import librosa
+import numpy as np
 import tensorflow as tf
 
 from hearbaseline.tf.util import frame_audio
@@ -84,8 +85,17 @@ def load_model(model_file_path: str = "") -> tf.Module:
     Returns:
         Model: tf.Module loaded on the specified device.
     """
-    # TODO: saving and loading of weights
     model = RandomProjectionMelEmbedding()
+
+    if model_file_path != "":
+        # Since there are just projection weights for this naive baseline,
+        # they've been saved as a npy file. For a more complicated tf Module
+        # we could have used the tensorflow SavedModel format:
+        # https://www.tensorflow.org/api_docs/python/tf/saved_model/load
+        model_weights = np.load(model_file_path)
+        assert model_weights.shape == model.projection.shape
+        model.projection.assign(tf.convert_to_tensor(model_weights, dtype=tf.float32))
+
     return model
 
 
