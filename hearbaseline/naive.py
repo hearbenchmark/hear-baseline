@@ -5,7 +5,6 @@ This is simply a mel spectrogram followed by random projection.
 """
 
 from collections import OrderedDict
-import math
 from typing import Tuple
 
 import librosa
