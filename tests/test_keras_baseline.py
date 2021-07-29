@@ -132,5 +132,8 @@ class TestKerasNaiveEmbeddings:
         # Test the spacing between the time stamp
         audio = (tf.random.uniform((1, 96000)) * 2.0) - 1.0
         emb, ts = keras_baseline.get_timestamp_embeddings(audio, model=self.keras_model)
-        timestamp_diff = ts[1:] - ts[:-1]
-        assert tf.reduce_mean(timestamp_diff) - ts[1] < 1e-5
+        timestamp_diff = ts[:, 1:] - ts[:, :-1]
+        assert np.all(tf.reduce_mean(timestamp_diff, axis=1) - ts[:, 1] < 1e-5)
+
+        # Confirm timestamps have the correct shape
+        assert emb.shape[:2] == ts.shape
