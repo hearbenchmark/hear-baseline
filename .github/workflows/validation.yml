@@ -41,5 +41,5 @@ jobs:
         hear-validator hearbaseline.tf.naive --model ./naive_baseline_tf.npy
     - name: Validate the Keras version
       run: |
-        hear-validator hearbaseline.tf.keras
-        hear-validator hearbaseline.tf.keras --model ./naive_baseline_keras.h5
+        hear-validator hearbaseline.keras.naive
+        hear-validator hearbaseline.keras.naive --model ./naive_baseline_keras.h5
