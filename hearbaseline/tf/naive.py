@@ -93,6 +93,11 @@ def load_model(model_file_path: str = "") -> tf.Module:
         model_weights = np.load(model_file_path)
         assert model_weights.shape == model.projection.shape
         model.projection.assign(tf.convert_to_tensor(model_weights, dtype=tf.float32))
+    else:
+        # Randomly initialize weights from normal distribution
+        rng = tf.random.Generator.from_seed(model.seed)
+        weights = rng.normal(model.projection.shape)
+        model.projection.assign(weights)
 
     return model
 

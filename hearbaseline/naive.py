@@ -93,6 +93,12 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
             )
 
         model.load_state_dict(loaded_model)
+    else:
+        # Randomly initialize weights from normal distribution
+        current_state = torch.get_rng_state()
+        torch.manual_seed(model.seed)
+        torch.nn.init.normal_(model.projection.weight)
+        torch.set_rng_state(current_state)
 
     return model
 
