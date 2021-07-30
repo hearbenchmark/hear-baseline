@@ -40,8 +40,6 @@ class RandomProjectionMelEmbedding(tf.Module):
     def __init__(self, name=None):
         super().__init__(name=name)
 
-        tf.random.set_seed(self.seed)
-
         # Create a Hann window buffer to apply to frames prior to FFT.
         self.window = tf.Variable(tf.signal.hann_window(self.n_fft), trainable=False)
 

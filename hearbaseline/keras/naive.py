@@ -39,8 +39,6 @@ class RandomProjectionMelEmbedding(tf.keras.Model):
     def __init__(self):
         super(RandomProjectionMelEmbedding, self).__init__()
 
-        tf.random.set_seed(self.seed)
-
         # Create a Hann window buffer to apply to frames prior to FFT.
         self.window = tf.Variable(tf.signal.hann_window(self.n_fft), trainable=False)
 

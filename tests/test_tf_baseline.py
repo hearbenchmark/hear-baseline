@@ -32,8 +32,10 @@ class TestTFNaiveModel:
         assert model.scene_embedding_size == torch_model.scene_embedding_size
         assert model.timestamp_embedding_size == torch_model.scene_embedding_size
 
-        # Confirm that the projection matrix is the same shape
-        assert model.projection.shape == torch_model.projection.shape
+        # Confirm that the projection matrix is the same shape -- torch weights are
+        # stored in transposed position though for layers.
+        assert model.projection.shape[0] == torch_model.projection.weight.shape[1]
+        assert model.projection.shape[1] == torch_model.projection.weight.shape[0]
 
 
 class TestTFNaiveEmbeddings:
@@ -45,9 +47,9 @@ class TestTFNaiveEmbeddings:
         self.tf_model.projection.assign(
             tf.convert_to_tensor(matrix_init, dtype=tf.float32)
         )
-        self.torch_model.projection.data = torch.tensor(
+        self.torch_model.projection.weight.data = torch.tensor(
             matrix_init, dtype=torch.float32
-        )
+        ).T
 
     def teardown(self):
         del self.tf_model
@@ -58,7 +60,7 @@ class TestTFNaiveEmbeddings:
         # Confirm that all the projection matrix values are the same
         assert np.all(
             self.tf_model.projection.numpy()
-            == self.torch_model.projection.detach().numpy()
+            == self.torch_model.projection.weight.detach().numpy().T
         )
 
         num_audio = 4
@@ -86,7 +88,7 @@ class TestTFNaiveEmbeddings:
         # Confirm that all the projection matrix values are the same
         assert np.all(
             self.tf_model.projection.numpy()
-            == self.torch_model.projection.detach().numpy()
+            == self.torch_model.projection.weight.detach().numpy().T
         )
 
         num_audio = 4

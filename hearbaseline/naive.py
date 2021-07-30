@@ -50,13 +50,8 @@ class RandomProjectionMelEmbedding(torch.nn.Module):
         )
         self.register_buffer("mel_scale", mel_scale)
 
-        # Linear projection initialized using a normal distribution. We seed the rng
-        # for determinism and then return the rng to its previous state.
-        rng_state = torch.get_rng_state()
-        torch.manual_seed(self.seed)
+        # Linear projection layer to get output embedding of size 4096
         self.projection = torch.nn.Linear(self.n_mels, self.embedding_size, bias=False)
-        torch.nn.init.normal_(self.projection.weight)
-        torch.set_rng_state(rng_state)
 
     def forward(self, x: Tensor):
         # Compute the real-valued Fourier transform on windowed input signal.
