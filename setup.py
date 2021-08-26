@@ -24,6 +24,9 @@ setup(
         "numpy",
         "tensorflow",
         "torch",
+        # For wav2vec2 model
+        "speechbrain",
+        "transformers==4.4.0"
     ],
     extras_require={
         "test": [
