@@ -5,13 +5,9 @@ Adapted from
 https://colab.research.google.com/drive/17Hu1pxqhfMisjkSgmM2CnZxfqDyn2hSY?usp=sharing
 """
 
-import math
-from collections import OrderedDict
 from typing import Tuple
 
-import librosa
 import torch
-import torch.fft
 
 # from speechbrain.lobes.models.fairseq_wav2vec import FairseqWav2Vec2
 from speechbrain.lobes.models.huggingface_wav2vec import HuggingFaceWav2Vec2
@@ -79,7 +75,7 @@ def get_timestamp_embeddings(
     if not isinstance(model, HuggingFaceWav2Vec2):
         raise ValueError(f"Model must be an instance of {HuggingFaceWav2Vec2.__name__}")
 
-    ## Send the model to the same device that the audio tensor is on.
+    # Send the model to the same device that the audio tensor is on.
     # model = model.to(audio.device)
 
     # Put the model into eval mode, and not computing gradients while in inference.
