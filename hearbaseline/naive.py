@@ -10,6 +10,7 @@ from typing import Tuple
 
 import librosa
 import torch
+import torch.fft
 from torch import Tensor
 
 from hearbaseline.util import frame_audio
