@@ -37,8 +37,9 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
     """
     # model_fairseq = FairseqWav2Vec2(model_url, save_path="pretrained/local_model.pt")
     model_huggingface = HuggingFaceWav2Vec2(model_hub, save_path="pretrained/")
+    model = model_huggingface
     if torch.cuda.is_available():
-        model_huggingface.cuda()
+        model.cuda()
 
     # sample rate and embedding sizes are required model attributes for the HEAR API
     model.sample_rate = 16000
@@ -46,7 +47,7 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
     model.scene_embedding_size = model.embedding_size
     model.timestamp_embedding_size = model.embedding_size
 
-    return model_huggingface
+    return model
 
 
 def get_timestamp_embeddings(
@@ -89,15 +90,27 @@ def get_timestamp_embeddings(
 
     # Length of the audio in MS
     audio_ms = int(audio.shape[1] / model.sample_rate * 1000)
-    # 20 ms frame hop, and we assume it's centered
-    last_center = 20 * (audio_ms // 20) + 10
-    timestamps = torch.range(10, last_center, 20)
+
+    # samples => timestamps
+    # 31439 => 97
+    # 31440 => 98
+    # This is weird that its 5ms, not half the hopsize of 20
+    ntimestamps = (audio_ms - 5) // 20
+
+    # I don't know if this is their exact centering, but this matches
+    # their shape.
+    last_center = 12.5 + ntimestamps * 19
+    timestamps = torch.arange(12.5, last_center + 20, 20)
     timestamps = timestamps.expand((embeddings.shape[0], timestamps.shape[0]))
     assert timestamps.shape[1] == embeddings.shape[1]
+    timestamps = torch.zeros((embeddings.shape[0], embeddings.shape[1]))
 
     return embeddings, timestamps
 
 
+# TODO: There must be a better way to do scene embeddings,
+# e.g. just truncating / padding the audio to 2 seconds
+# and concatenating a subset of the embeddings.
 def get_scene_embeddings(
     audio: Tensor,
     model: torch.nn.Module,
