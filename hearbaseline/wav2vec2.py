@@ -93,10 +93,15 @@ def get_timestamp_embeddings(
     # This is weird that its 5ms, not half the hopsize of 20
     ntimestamps = (audio_ms - 5) // 20
 
+    # Also
+    # 32000 => 99
+    # 32080 => 100
+
     # I don't know if this is their exact centering, but this matches
     # their shape.
-    last_center = 12.5 + ntimestamps * 19
+    last_center = 12.5 + (ntimestamps - 1) * 20
     timestamps = torch.arange(12.5, last_center + 20, 20)
+    assert len(timestamps) == ntimestamps
     timestamps = timestamps.expand((embeddings.shape[0], timestamps.shape[0]))
     assert timestamps.shape[1] == embeddings.shape[1]
     timestamps = torch.zeros((embeddings.shape[0], embeddings.shape[1]))
