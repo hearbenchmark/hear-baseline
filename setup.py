@@ -5,7 +5,7 @@ long_description = open("README.md", "r", encoding="utf-8").read()
 
 setup(
     name="hearbaseline",
-    version="2021.0.2",
+    version="2021.0.3",
     description="Holistic Evaluation of Audio Representations (HEAR) 2021 -- Baseline Model",
     author="HEAR 2021 NeurIPS Competition Committee",
     author_email="deep@neuralaudio.ai",
@@ -18,7 +18,7 @@ setup(
         "Source Code": "https://github.com/neuralaudio/hear-baseline",
     },
     packages=find_packages(exclude=("tests",)),
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=[
         "librosa",
         # otherwise librosa breaks
