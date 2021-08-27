@@ -47,6 +47,11 @@ setup(
         "sentencepiece==0.1.96",
         "sacremoses==0.0.45",
         "urllib3==1.26.6",
+        "charset_normalizer==2.0.4",
+        "idna==3.2",
+        "certifi==2021.5.30",
+        "requests==2.26.0",
+        "pytest-env==0.6.2",
     ],
     extras_require={
         "test": [
