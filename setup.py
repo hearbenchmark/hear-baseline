@@ -29,7 +29,15 @@ setup(
         "torch",
         # For wav2vec2 model
         "speechbrain",
-        "transformers==4.4.0"
+        "transformers==4.4.0",
+"absl_py==0.13.0",
+"grpcio==1.39.0",
+"huggingface_hub==0.0.15",
+#"ruamel.base",
+#"ruamel.std.argparse",
+"ruamel.yaml==0.17.14",
+"ruamel.yaml.clib==0.2.6",
+"sentencepiece==0.1.96",
     ],
     extras_require={
         "test": [
