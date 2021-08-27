@@ -45,6 +45,8 @@ setup(
         "ruamel.yaml.clib==0.2.6",
         "ruamel.yaml==0.17.14",
         "sentencepiece==0.1.96",
+        "sacremoses==0.0.45",
+        "urllib3==1.26.6",
     ],
     extras_require={
         "test": [
