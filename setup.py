@@ -30,6 +30,7 @@ setup(
         # For wav2vec2 model
         "speechbrain",
         "transformers==4.4.0",
+        "torchcrepe",
         # otherwise librosa breaks
         "numba==0.48",
         #"numba>=0.49.0", # not directly required, pinned by Snyk to avoid a vulnerability

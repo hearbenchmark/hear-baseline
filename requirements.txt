@@ -7,6 +7,7 @@ tensorflow>=2.0
 torch
 speechbrain
 transformers==4.4.0
+torchcrepe
 black
 pre-commit
 pytest
