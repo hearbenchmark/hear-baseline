@@ -5,6 +5,8 @@ numba==0.48
 numpy==1.19.2
 tensorflow
 torch
+speechbrain
+transformers==4.4.0
 black
 pre-commit
 pytest
