@@ -41,15 +41,25 @@ class TorchCrepeModel(torch.nn.Module):
             device = "cpu"
         if x.ndim == 1:
             x = x.view(1, x.shape[0])
-        assert x.shape[0] == 1 and x.ndim == 2
-        return torchcrepe.embed(
-            audio=x,
-            sample_rate=self.sample_rate,
-            hop_length=HOP_SIZE,
-            model="full",
-            device=device,
-            pad=True,
-        )
+
+        assert x.ndim == 2
+
+        # This is lame, sorry
+        # torchcrepe only can process one audio at a time
+        embeddings = []
+        for i in range(x.shape[0]):
+            embeddings.append(
+                torchcrepe.embed(
+                    audio=x[i].view(1, x.shape[1]),
+                    sample_rate=self.sample_rate,
+                    hop_length=HOP_SIZE,
+                    model="full",
+                    device=device,
+                    pad=True,
+                )
+            )
+        embeddings = torch.stack(embeddings)
+        return embeddings
 
 
 def load_model(model_file_path: str = "") -> torch.nn.Module:
