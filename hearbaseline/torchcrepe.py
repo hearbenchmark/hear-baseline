@@ -8,6 +8,8 @@ import torch
 import torchcrepe
 from torch import Tensor
 
+HOP_SIZE = 25
+
 
 class TorchCrepeModel(torch.nn.Module):
     """
@@ -22,6 +24,31 @@ class TorchCrepeModel(torch.nn.Module):
     scene_embedding_size = embedding_size
     timestamp_embedding_size = embedding_size
 
+    def __init__(self):
+        super().__init__()
+
+        # This is gross.
+        if torch.cuda.is_available():
+            torchcrepe.load.model(device="cuda", capacity="full")
+        else:
+            torchcrepe.load.model(device="cpu", capacity="full")
+
+    def forward(self, x: Tensor):
+        # Or do x.device?
+        if torch.cuda.is_available():
+            device = "cuda"
+        else:
+            device = "cpu"
+        assert x.shape[0] == 1 and x.ndim == 2
+        return torchcrepe.embed(
+            audio=x,
+            sample_rate=self.sample_rate,
+            hop_length=HOP_SIZE,
+            model="full",
+            device=device,
+            pad=True,
+        )
+
 
 def load_model(model_file_path: str = "") -> torch.nn.Module:
     """
@@ -34,11 +61,6 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
     Returns:
         Model: torch.nn.Module loaded on the specified device.
     """
-    if torch.cuda.is_available():
-        torchcrepe.load.model(device="cuda", capacity="full")
-    else:
-        torchcrepe.load.model(device="cpu", capacity="full")
-
     return TorchCrepeModel()
 
 
