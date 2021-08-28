@@ -8,6 +8,7 @@ import torch
 import torchcrepe
 from torch import Tensor
 
+
 class TorchCrepeModel(torch.nn.Module):
     """
     A pretty gross wrapper on torchcrepe, because of its implicit
@@ -18,8 +19,8 @@ class TorchCrepeModel(torch.nn.Module):
     sample_rate = 16000
     # ???
     embedding_size = 768
-    scene_embedding_size = model.embedding_size
-    timestamp_embedding_size = model.embedding_size
+    scene_embedding_size = embedding_size
+    timestamp_embedding_size = embedding_size
 
 
 def load_model(model_file_path: str = "") -> torch.nn.Module:
@@ -34,9 +35,9 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
         Model: torch.nn.Module loaded on the specified device.
     """
     if torch.cuda.is_available():
-        torchcrepe.load.model(device="cuda", capacity='full')
+        torchcrepe.load.model(device="cuda", capacity="full")
     else:
-        torchcrepe.load.model(device="cpu", capacity='full')
+        torchcrepe.load.model(device="cpu", capacity="full")
 
     return TorchCrepeModel()
 
@@ -67,8 +68,8 @@ def get_timestamp_embeddings(
         )
 
     # Make sure the correct model type was passed in
-    if not isinstance(model, HuggingFaceWav2Vec2):
-        raise ValueError(f"Model must be an instance of {HuggingFaceWav2Vec2.__name__}")
+    if not isinstance(model, TorchCrepeModel):
+        raise ValueError(f"Model must be an instance of {TorchCrepeModel.__name__}")
 
     # Send the model to the same device that the audio tensor is on.
     # model = model.to(audio.device)
