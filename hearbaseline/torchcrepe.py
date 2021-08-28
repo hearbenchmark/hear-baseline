@@ -10,8 +10,7 @@ from torch import Tensor
 
 SAMPLE_RATE = 16000
 
-# HOP_SIZE = 25
-HOP_SIZE = 1000
+HOP_SIZE = 25
 
 HOP_SIZE_SAMPLES = (SAMPLE_RATE * HOP_SIZE) // 1000
 
@@ -66,7 +65,7 @@ class TorchCrepeModel(torch.nn.Module):
             assert embedding.ndim == 4
             embedding = embedding.view((1, embedding.shape[1], -1))
             embeddings.append(embedding)
-        embeddings = torch.stack(embeddings)
+        embeddings = torch.cat(embeddings)
         return embeddings
 
 
@@ -130,7 +129,9 @@ def get_timestamp_embeddings(
     )
     assert len(timestamps) == ntimestamps
     timestamps = timestamps.expand((embeddings.shape[0], timestamps.shape[0]))
-    assert timestamps.shape[1] == embeddings.shape[1]
+    assert (
+        timestamps.shape[1] == embeddings.shape[1]
+    ), f"{timestamps.shape} vs {embeddings.shape}"
     timestamps = torch.zeros((embeddings.shape[0], embeddings.shape[1]))
 
     return embeddings, timestamps
