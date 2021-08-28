@@ -35,7 +35,7 @@ def frame_audio(
     audio = F.pad(audio, (frame_size // 2, frame_size - frame_size // 2))
     num_padded_samples = audio.shape[1]
 
-    frame_step = int(round(hop_size / 1000.0 * sample_rate))
+    frame_step = hop_size / 1000.0 * sample_rate
     frame_number = 0
     frames = []
     timestamps = []
@@ -48,7 +48,7 @@ def frame_audio(
         # Increment the frame_number and break the loop if the next frame end
         # will extend past the end of the padded audio samples
         frame_number += 1
-        frame_start = frame_number * frame_step
+        frame_start = int(round(frame_number * frame_step))
         frame_end = frame_start + frame_size
 
         if not frame_end <= num_padded_samples:
