@@ -3,7 +3,7 @@ librosa
 numba==0.48
 # tf 2.6.0
 numpy==1.19.2
-tensorflow
+tensorflow>=2.0
 torch
 speechbrain
 transformers==4.4.0
