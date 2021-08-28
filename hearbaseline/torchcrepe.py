@@ -8,7 +8,12 @@ import torch
 import torchcrepe
 from torch import Tensor
 
-HOP_SIZE = 25
+SAMPLE_RATE = 16000
+
+# HOP_SIZE = 25
+HOP_SIZE = 1000
+
+HOP_SIZE_SAMPLES = (SAMPLE_RATE * HOP_SIZE) // 1000
 
 
 class TorchCrepeModel(torch.nn.Module):
@@ -18,9 +23,9 @@ class TorchCrepeModel(torch.nn.Module):
     """
 
     # sample rate and embedding sizes are required model attributes for the HEAR API
-    sample_rate = 16000
+    sample_rate = SAMPLE_RATE
     # ???
-    embedding_size = 768
+    embedding_size = 32 * 64
     scene_embedding_size = embedding_size
     timestamp_embedding_size = embedding_size
 
@@ -48,16 +53,19 @@ class TorchCrepeModel(torch.nn.Module):
         # torchcrepe only can process one audio at a time
         embeddings = []
         for i in range(x.shape[0]):
-            embeddings.append(
-                torchcrepe.embed(
-                    audio=x[i].view(1, x.shape[1]),
-                    sample_rate=self.sample_rate,
-                    hop_length=HOP_SIZE,
-                    model="full",
-                    device=device,
-                    pad=True,
-                )
+            embedding = torchcrepe.embed(
+                audio=x[i].view(1, x.shape[1]),
+                sample_rate=self.sample_rate,
+                hop_length=HOP_SIZE_SAMPLES,
+                model="full",
+                device=device,
+                pad=True,
             )
+            # Convert 1 x frames x 32x64 embedding to 1 x frames x 32*64
+            assert embedding.shape[0] == 1
+            assert embedding.ndim == 4
+            embedding = embedding.view((1, embedding.shape[1], -1))
+            embeddings.append(embedding)
         embeddings = torch.stack(embeddings)
         return embeddings
 
@@ -114,23 +122,12 @@ def get_timestamp_embeddings(
     with torch.no_grad():
         embeddings = model(audio)
 
-    # Length of the audio in MS
-    audio_ms = int(audio.shape[1] / model.sample_rate * 1000)
+    ntimestamps = audio.shape[1] // HOP_SIZE_SAMPLES + 1
 
-    # samples => timestamps
-    # 31439 => 97
-    # 31440 => 98
-    # This is weird that its 5ms, not half the hopsize of 20
-    ntimestamps = (audio_ms - 5) // 20
-
-    # Also
-    # 32000 => 99
-    # 32080 => 100
-
-    # I don't know if this is their exact centering, but this matches
-    # their shape.
-    last_center = 12.5 + (ntimestamps - 1) * 20
-    timestamps = torch.arange(12.5, last_center + 20, 20)
+    # Doesn't appear to be centered
+    timestamps = torch.tensor(
+        [i * HOP_SIZE for i in range(ntimestamps)], device=embeddings.device
+    )
     assert len(timestamps) == ntimestamps
     timestamps = timestamps.expand((embeddings.shape[0], timestamps.shape[0]))
     assert timestamps.shape[1] == embeddings.shape[1]
