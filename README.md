@@ -6,11 +6,16 @@ by a random projection. Serves as the naive baseline model for the HEAR 2021 and
 the [common API](https://neuralaudio.ai/hear2021-holistic-evaluation-of-audio-representations.html#common-api)
 required by the competition evaluation.
 
+Additionally, a wav2vec2 HEAR implementation, based upon speechbrain and huggingface.
+
 For full details on the HEAR 2021 NeurIPS competition and for information on how to
 participate, please visit the
 [competition website.](https://neuralaudio.ai/hear2021-holistic-evaluation-of-audio-representations.html)
 
 ### Installation
+
+Tested with Python 3.7 and 3.8. Python 3.9 is not officially supported
+because pip3 installs are very finicky, but it might work.
 
 **Method 1: pypi**
 ```python
