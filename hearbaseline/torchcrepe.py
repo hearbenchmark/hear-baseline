@@ -123,7 +123,11 @@ def get_timestamp_embeddings(
 
     ntimestamps = audio.shape[1] // HOP_SIZE_SAMPLES + 1
 
-    # Doesn't appear to be centered
+    # By default, the audio is padded with window_size // 2 zeros
+    # on both sides. So a signal x will produce 1 + int(len(x) //
+    # hop_size) frames. The first frame is centered on sample index
+    # 0.
+    # https://github.com/maxrmorrison/torchcrepe/issues/14
     timestamps = torch.tensor(
         [i * HOP_SIZE for i in range(ntimestamps)], device=embeddings.device
     )
