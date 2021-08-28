@@ -39,6 +39,8 @@ class TorchCrepeModel(torch.nn.Module):
             device = "cuda"
         else:
             device = "cpu"
+        if x.ndim == 1:
+            x = x.view(1, x.shape[0])
         assert x.shape[0] == 1 and x.ndim == 2
         return torchcrepe.embed(
             audio=x,
