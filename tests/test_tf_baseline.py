@@ -104,10 +104,8 @@ class TestTFNaiveEmbeddings:
         )
 
         num_samples = duration * self.tf_model.sample_rate
-        hop_size_samples = int(
-            round(tf_baseline.HOP_SIZE / 1000.0 * self.tf_model.sample_rate)
-        )
-        expected_frames = int(num_samples // hop_size_samples + 1)
+        hop_size_samples = tf_baseline.HOP_SIZE / 1000.0 * self.tf_model.sample_rate
+        expected_frames = int(num_samples / hop_size_samples) + 1
 
         assert tf_embedding.shape == (
             num_audio,

@@ -178,11 +178,11 @@ class TestFraming:
             audio, frame_size=frame_size, hop_size=hop_size_ms, sample_rate=sr
         )
 
-        hop_size_samples = int(round(hop_size_ms / 1000.0 * sr))
-        expected_frames = (sr * duration // hop_size_samples) + 1
+        hop_size_samples = hop_size_ms / 1000.0 * sr
+        expected_frames = int(sr * duration / hop_size_samples) + 1
         expected_frames_shape = (num_audio, expected_frames, frame_size)
         expected_timestamps = np.arange(0, expected_frames)
-        expected_timestamps = expected_timestamps * hop_size_samples / sr * 1000.0
+        expected_timestamps = expected_timestamps * hop_size_ms
 
         assert expected_frames_shape == frames.shape
         assert np.allclose(expected_timestamps, timestamps.detach().cpu().numpy())

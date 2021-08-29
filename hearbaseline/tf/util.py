@@ -32,7 +32,11 @@ def frame_audio(
     # the timestamps.
     paddings = tf.constant([[0, 0], [frame_size // 2, frame_size - frame_size // 2]])
     audio = tf.pad(audio, paddings)
+    num_padded_samples = audio.shape[1]
 
+    # This implementation is really elegant but frame_step rounding errors
+    # can accumulate into drift.
+    """
     # Split into frames
     frame_step = int(round(hop_size / 1000.0 * sample_rate))
     frames = tf.signal.frame(audio, frame_length=frame_size, frame_step=frame_step)
@@ -45,5 +49,30 @@ def frame_audio(
     # Expand out timestamps to shape (n_sounds, num_frames)
     timestamps = tf.expand_dims(timestamps, axis=0)
     timestamps = tf.repeat(timestamps, repeats=[audio.shape[0]], axis=0)
+    """
 
-    return frames, timestamps
+    frame_step = hop_size / 1000.0 * sample_rate
+    frame_number = 0
+    frames = []
+    timestamps = []
+    frame_start = 0
+    frame_end = frame_size
+    while True:
+        frames.append(audio[:, frame_start:frame_end])
+        timestamps.append(frame_number * frame_step / sample_rate * 1000.0)
+
+        # Increment the frame_number and break the loop if the next frame end
+        # will extend past the end of the padded audio samples
+        frame_number += 1
+        frame_start = int(round(frame_number * frame_step))
+        frame_end = frame_start + frame_size
+
+        if not frame_end <= num_padded_samples:
+            break
+
+    # Expand out the timestamps to shape (n_sounds, num_frames)
+    timestamps = tf.convert_to_tensor(timestamps)
+    timestamps = tf.expand_dims(timestamps, axis=0)
+    timestamps = tf.repeat(timestamps, repeats=[audio.shape[0]], axis=0)
+
+    return tf.stack(frames, axis=1), timestamps

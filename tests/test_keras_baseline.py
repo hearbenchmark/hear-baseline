@@ -105,10 +105,10 @@ class TestKerasNaiveEmbeddings:
         )
 
         num_samples = duration * self.keras_model.sample_rate
-        hop_size_samples = int(
-            round(keras_baseline.HOP_SIZE / 1000.0 * self.keras_model.sample_rate)
+        hop_size_samples = (
+            keras_baseline.HOP_SIZE / 1000.0 * self.keras_model.sample_rate
         )
-        expected_frames = int(num_samples // hop_size_samples + 1)
+        expected_frames = int(num_samples / hop_size_samples) + 1
 
         assert tf_embedding.shape == (
             num_audio,
