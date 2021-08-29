@@ -73,7 +73,7 @@ class RandomProjectionMelEmbedding(tf.keras.Model):
 
 def load_model(model_file_path: str = "") -> tf.keras.Model:
     """
-    Returns a tf.keras.Model that produces embeddings for a frame of audio.
+    Returns a tf.keras.Model that produces embeddings for audio.
 
     Args:
         model_file_path: Load model checkpoint from this file path. For this baseline,

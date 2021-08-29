@@ -1,23 +1,42 @@
 """
-wav2vec2 model for HEAR 2021 NeurIPS competition.
-
-Adapted from
-https://colab.research.google.com/drive/17Hu1pxqhfMisjkSgmM2CnZxfqDyn2hSY?usp=sharing
+vggish model for HEAR 2021 NeurIPS competition.
 """
 
 from typing import Tuple
 
 import torch
-
-# from speechbrain.lobes.models.fairseq_wav2vec import FairseqWav2Vec2
-from speechbrain.lobes.models.huggingface_wav2vec import HuggingFaceWav2Vec2
 from torch import Tensor
 
-# HuggingFace model hub
-model_hub = "facebook/wav2vec2-base-960h"
 
-# Faiseq model url
-# model_url = "https://dl.fbaipublicfiles.com/fairseq/wav2vec/wav2vec_small.pt"
+class VggishWrapper(torch.nn.Module):
+    # sample rate and embedding sizes are required model attributes for the HEAR API
+    sample_rate = 16000
+    embedding_size = 128
+    scene_embedding_size = embedding_size
+    timestamp_embedding_size = embedding_size
+
+    def __init__(self):
+        super().__init__()
+
+        self.model = torch.hub.load("harritaylor/torchvggish", "vggish")
+        if torch.cuda.is_available():
+            self.model.cuda()
+        self.model.eval()
+
+    def forward(self, x: Tensor):
+        # This is lame, sorry
+        # vggish only can process one audio at a time
+        embeddings = []
+        for i in range(x.shape[0]):
+            # tensor => numpy sucks too
+            embedding = self.model(x[i].detach().cpu().numpy(), fs=self.sample_rate)
+            # This is weird too
+            if embedding.ndim == 1:
+                assert embedding.shape[0] == 128
+                embedding = embedding.view(1, 128)
+            embeddings.append(embedding)
+        embeddings = torch.stack(embeddings)
+        return embeddings
 
 
 def load_model(model_file_path: str = "") -> torch.nn.Module:
@@ -29,19 +48,8 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
     Returns:
         Model
     """
-    # model_fairseq = FairseqWav2Vec2(model_url, save_path="pretrained/local_model.pt")
-    model_huggingface = HuggingFaceWav2Vec2(model_hub, save_path="pretrained/")
-    model = model_huggingface
-    if torch.cuda.is_available():
-        model.cuda()
 
-    # sample rate and embedding sizes are required model attributes for the HEAR API
-    model.sample_rate = 16000
-    model.embedding_size = 768
-    model.scene_embedding_size = model.embedding_size
-    model.timestamp_embedding_size = model.embedding_size
-
-    return model
+    return VggishWrapper()
 
 
 def get_timestamp_embeddings(
@@ -70,35 +78,29 @@ def get_timestamp_embeddings(
         )
 
     # Make sure the correct model type was passed in
-    if not isinstance(model, HuggingFaceWav2Vec2):
-        raise ValueError(f"Model must be an instance of {HuggingFaceWav2Vec2.__name__}")
+    if not isinstance(model, VggishWrapper):
+        raise ValueError(f"Model must be an instance of {VggishWrapper.__name__}")
 
     # Send the model to the same device that the audio tensor is on.
     # model = model.to(audio.device)
 
     # Put the model into eval mode, and not computing gradients while in inference.
     # Iterate over all batches and accumulate the embeddings for each frame.
-    model.eval()
     with torch.no_grad():
         embeddings = model(audio)
 
     # Length of the audio in MS
-    audio_ms = int(audio.shape[1] / model.sample_rate * 1000)
+    # audio_ms = audio.shape[1] / model.sample_rate * 1000
+    hop_length = 960
+    # BUG: This sort of thing is likely to mess up the timestamps
+    # since we don't understand precisely how they frame.
+    # I don't know why this doesn't work
+    # ntimestamps = int(audio_ms / hop_length)
+    # so just hack it
+    ntimestamps = embeddings.shape[1]
 
-    # samples => timestamps
-    # 31439 => 97
-    # 31440 => 98
-    # This is weird that its 5ms, not half the hopsize of 20
-    ntimestamps = (audio_ms - 5) // 20
-
-    # Also
-    # 32000 => 99
-    # 32080 => 100
-
-    # I don't know if this is their exact centering, but this matches
-    # their shape.
-    last_center = 12.5 + (ntimestamps - 1) * 20
-    timestamps = torch.arange(12.5, last_center + 20, 20)
+    last_center = int(hop_length * (ntimestamps + 0.5))
+    timestamps = torch.arange(hop_length // 2, last_center, hop_length)
     assert len(timestamps) == ntimestamps
     timestamps = timestamps.expand((embeddings.shape[0], timestamps.shape[0]))
     assert timestamps.shape[1] == embeddings.shape[1]

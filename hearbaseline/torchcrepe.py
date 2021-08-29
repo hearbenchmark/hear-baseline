@@ -71,14 +71,12 @@ class TorchCrepeModel(torch.nn.Module):
 
 def load_model(model_file_path: str = "") -> torch.nn.Module:
     """
-    Returns a torch.nn.Module that produces embeddings for a frame of audio.
+    Returns a torch.nn.Module that produces embeddings for audio.
 
     Args:
-        model_file_path: Load model checkpoint from this file path. For this baseline,
-            if no path is provided then the default random init weights for the
-            linear projection layer will be used.
+        model_file_path: Ignored.
     Returns:
-        Model: torch.nn.Module loaded on the specified device.
+        Model
     """
     return TorchCrepeModel()
 
@@ -132,7 +130,6 @@ def get_timestamp_embeddings(
     assert (
         timestamps.shape[1] == embeddings.shape[1]
     ), f"{timestamps.shape} vs {embeddings.shape}"
-    timestamps = torch.zeros((embeddings.shape[0], embeddings.shape[1]))
 
     return embeddings, timestamps
 
