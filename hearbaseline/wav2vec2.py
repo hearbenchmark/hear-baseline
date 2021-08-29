@@ -104,12 +104,11 @@ def get_timestamp_embeddings(
     assert len(timestamps) == ntimestamps
     timestamps = timestamps.expand((embeddings.shape[0], timestamps.shape[0]))
     assert timestamps.shape[1] == embeddings.shape[1]
-    timestamps = torch.zeros((embeddings.shape[0], embeddings.shape[1]))
 
     return embeddings, timestamps
 
 
-# TODO: There must be a better way to do scene embedding,
+# TODO: There must be a better way to do scene embeddings,
 # e.g. just truncating / padding the audio to 2 seconds
 # and concatenating a subset of the embeddings.
 def get_scene_embeddings(
