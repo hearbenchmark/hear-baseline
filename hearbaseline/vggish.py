@@ -90,7 +90,7 @@ def get_timestamp_embeddings(
         embeddings = model(audio)
 
     # Length of the audio in MS
-    audio_ms = audio.shape[1] / model.sample_rate * 1000
+    # audio_ms = audio.shape[1] / model.sample_rate * 1000
     hop_length = 960
     # BUG: This sort of thing is likely to mess up the timestamps
     # since we don't understand precisely how they frame.
