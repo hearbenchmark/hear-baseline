@@ -22,14 +22,12 @@ model_hub = "facebook/wav2vec2-base-960h"
 
 def load_model(model_file_path: str = "") -> torch.nn.Module:
     """
-    Returns a torch.nn.Module that produces embeddings for a frame of audio.
+    Returns a torch.nn.Module that produces embeddings for audio.
 
     Args:
-        model_file_path: Load model checkpoint from this file path. For this baseline,
-            if no path is provided then the default random init weights for the
-            linear projection layer will be used.
+        model_file_path: Ignored.
     Returns:
-        Model: torch.nn.Module loaded on the specified device.
+        Model
     """
     # model_fairseq = FairseqWav2Vec2(model_url, save_path="pretrained/local_model.pt")
     model_huggingface = HuggingFaceWav2Vec2(model_hub, save_path="pretrained/")
