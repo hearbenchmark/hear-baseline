@@ -109,7 +109,7 @@ def get_timestamp_embeddings(
     return embeddings, timestamps
 
 
-# TODO: There must be a better way to do scene embeddings,
+# TODO: There must be a better way to do scene embedding,
 # e.g. just truncating / padding the audio to 2 seconds
 # and concatenating a subset of the embeddings.
 def get_scene_embeddings(
