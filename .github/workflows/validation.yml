@@ -1,4 +1,4 @@
-name: hearvalidator on baselines
+name: hear-validator on baselines
 
 on: [pull_request]
 
