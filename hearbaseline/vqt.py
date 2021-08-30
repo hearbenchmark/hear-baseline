@@ -39,7 +39,7 @@ class VQT(torch.nn.Module):
         for i in range(x.shape[0]):
             embedding = np.abs(
                 librosa.vqt(
-                    x[i].numpy(),
+                    x[i].detach().cpu().numpy(),
                     sr=self.sample_rate,
                     hop_length=self.hop_length,
                     gamma=self.gamma,
