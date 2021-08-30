@@ -6,7 +6,10 @@ by a random projection. Serves as the naive baseline model for the HEAR 2021 and
 the [common API](https://neuralaudio.ai/hear2021-holistic-evaluation-of-audio-representations.html#common-api)
 required by the competition evaluation.
 
-Additionally, a wav2vec2 HEAR implementation, based upon speechbrain and huggingface.
+Additionally, we wrap several benchmark audio embedding models.
+However, many of them are ineffecient because of limiting assumptions
+in the original implementation (e.g. only one audio file can be
+processed at a time using their high-level API).
 
 For full details on the HEAR 2021 NeurIPS competition and for information on how to
 participate, please visit the

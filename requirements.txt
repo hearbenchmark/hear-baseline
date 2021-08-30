@@ -8,6 +8,7 @@ torch
 speechbrain
 transformers==4.4.0
 torchcrepe
+torchopenl3
 black
 pre-commit
 pytest

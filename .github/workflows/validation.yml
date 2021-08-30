@@ -44,9 +44,18 @@ jobs:
       run: |
         hear-validator hearbaseline.keras.naive
         hear-validator hearbaseline.keras.naive --model ./naive_baseline_keras.h5
+    - name: Validate hearbaseline.torchopenl3
+      run: |
+        hear-validator hearbaseline.torchopenl3
     - name: Validate hearbaseline.wav2vec2
       run: |
         hear-validator hearbaseline.wav2vec2
+    - name: Validate hearbaseline.vggish
+      run: |
+        hear-validator hearbaseline.vggish
+    - name: Validate hearbaseline.vqt
+      run: |
+        hear-validator hearbaseline.vqt
     - name: Validate hearbaseline.torchcrepe
       run: |
         hear-validator hearbaseline.torchcrepe
