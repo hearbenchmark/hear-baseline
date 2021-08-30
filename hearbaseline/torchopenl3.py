@@ -16,9 +16,14 @@ def load_model(
     content_type="music",
     embedding_size=6144,
     center=True,
-    hop_size=0.05,
-    batch_size=32,
+    hop_size_ms=50,
+    batch_size=256,
     verbose=False,
+    # Concatenate, don't mean, to get timestamp embeddings
+    # You probably want a larger hop-size for this
+    scene_embedding_mean=False,
+    # Length of audio used for the scene embedding
+    scene_embedding_audio_length_ms=4000,
 ) -> torch.nn.Module:
     """
     Returns a torch.nn.Module that produces embeddings for audio.
@@ -37,19 +42,28 @@ def load_model(
 
     model.sample_rate = 48000
     model.embedding_size = embedding_size
-    model.scene_embedding_size = embedding_size
     model.timestamp_embedding_size = embedding_size
+    if scene_embedding_mean:
+        model.scene_embedding_size = embedding_size
+    else:
+        # center padding on start and end, so add 1
+        model.scene_embedding_size = embedding_size * (
+            int(scene_embedding_audio_length_ms / hop_size_ms) + 1
+        )
+
     # model.center=center
-    model.hop_size = hop_size
+    model.hop_size_ms = hop_size_ms
     # model.batch_size=batch_size
     # model.verbose=verbose
+    model.scene_embedding_mean = scene_embedding_mean
+    model.scene_embedding_audio_length_ms = scene_embedding_audio_length_ms
 
     model.get_audio_embedding = functools.partial(
         torchopenl3.core.get_audio_embedding,
         sr=model.sample_rate,
         model=model,
         center=center,
-        hop_size=hop_size,
+        hop_size=hop_size_ms / 1000,
         batch_size=batch_size,
         verbose=verbose,
     )
@@ -101,7 +115,7 @@ def get_timestamp_embeddings(
             (
                 0,
                 int(model.sample_rate / 2)
-                - audio.shape[1] % int(model.sample_rate * model.hop_size),
+                - audio.shape[1] % int(model.sample_rate * model.hop_size_ms / 1000),
             ),
             mode="constant",
             value=0,
@@ -115,9 +129,6 @@ def get_timestamp_embeddings(
     return embeddings, timestamps
 
 
-# TODO: There must be a better way to do scene embeddings,
-# e.g. just truncating / padding the audio to 2 seconds
-# and concatenating a subset of the embeddings.
 def get_scene_embeddings(
     audio: Tensor,
     model: torch.nn.Module,
@@ -136,6 +147,22 @@ def get_scene_embeddings(
         - embeddings, A float32 Tensor with shape
             (n_sounds, model.scene_embedding_size).
     """
-    embeddings, _ = get_timestamp_embeddings(audio, model)
-    embeddings = torch.mean(embeddings, dim=1)
+    if model.scene_embedding_mean:
+        embeddings, _ = get_timestamp_embeddings(audio, model)
+        embeddings = torch.mean(embeddings, dim=1)
+    else:
+        # Trim or pad to, say, 4 seconds and concat the embeddings
+        pad_samples = int(
+            model.scene_embedding_audio_length_ms / 1000 * model.sample_rate
+        )
+        if audio.shape[1] > pad_samples:
+            audio = audio[:, :pad_samples]
+        else:
+            audio = torch.nn.functional.pad(
+                audio, (0, pad_samples - audio.shape[1]), "constant", 0
+            )
+        assert audio.shape[1] == pad_samples
+        embeddings, timestamps = get_timestamp_embeddings(audio, model)
+        print(timestamps)
+        embeddings = embeddings.view(embeddings.shape[0], -1)
     return embeddings
