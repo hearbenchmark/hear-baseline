@@ -21,7 +21,7 @@ def load_model(
     verbose=False,
     # Concatenate, don't mean, to get timestamp embeddings
     # You probably want a larger hop-size for this
-    scene_embedding_mean=False,
+    scene_embedding_mean=True,
     # Length of audio used for the scene embedding
     scene_embedding_audio_length_ms=4000,
 ) -> torch.nn.Module:
