@@ -14,18 +14,33 @@ from speechbrain.lobes.models.huggingface_wav2vec import HuggingFaceWav2Vec2
 from torch import Tensor
 
 # HuggingFace model hub
-model_hub = "facebook/wav2vec2-base-960h"
+# Also try:
+# facebook/wav2vec2-base
+# facebook/wav2vec2-base-100k-voxpopuli
+# facebook/wav2vec2-base-960h
+# facebook/wav2vec2-large
+# facebook/wav2vec2-large-100k-voxpopuli
+# facebook/wav2vec2-large-960h
+# facebook/wav2vec2-large-960h-lv60
+# facebook/wav2vec2-large-960h-lv60-self
+# facebook/wav2vec2-large-robust
+# facebook/wav2vec2-large-robust-ft-libri-960h
+# facebook/wav2vec2-large-robust-ft-swbd-300h
+# facebook/wav2vec2-large-xlsr-53
 
 # Faiseq model url
 # model_url = "https://dl.fbaipublicfiles.com/fairseq/wav2vec/wav2vec_small.pt"
 
 
-def load_model(model_file_path: str = "") -> torch.nn.Module:
+def load_model(
+    model_file_path: str = "", model_hub: str = "facebook/wav2vec2-base-960h"
+) -> torch.nn.Module:
     """
     Returns a torch.nn.Module that produces embeddings for audio.
 
     Args:
         model_file_path: Ignored.
+        model_hub: Which wav2vec2 model to load from hugging face.
     Returns:
         Model
     """
