@@ -17,7 +17,7 @@ def load_model(
     embedding_size=6144,
     center=True,
     hop_size_ms=50,
-    batch_size=256,
+    batch_size=32,
     verbose=False,
     # Concatenate, don't mean, to get timestamp embeddings
     # You probably want a larger hop-size for this
@@ -163,6 +163,5 @@ def get_scene_embeddings(
             )
         assert audio.shape[1] == pad_samples
         embeddings, timestamps = get_timestamp_embeddings(audio, model)
-        print(timestamps)
         embeddings = embeddings.view(embeddings.shape[0], -1)
     return embeddings
