@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7, 3.8]
-        model: [torch, tf, keras, vggish, wav2vec2, torchopenl3, torchcrepe, vqt]
+        model: [naive, tf.naive, keras.naive, vggish, wav2vec2, torchopenl3, torchcrepe, vqt]
 
     steps:
     - uses: actions/checkout@master
