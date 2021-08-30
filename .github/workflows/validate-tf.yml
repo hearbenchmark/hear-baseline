@@ -1,4 +1,4 @@
-name: hearvalidator on baselines
+name: hearvalidator tf2
 
 on: [pull_request]
 
@@ -29,30 +29,8 @@ jobs:
         pip install hearvalidator
     - name: Get model weights
       run: |
-        wget https://github.com/neuralaudio/hear-baseline/raw/main/saved_models/naive_baseline.pt
         wget https://github.com/neuralaudio/hear-baseline/raw/main/saved_models/naive_baseline_tf.npy
-        wget https://github.com/neuralaudio/hear-baseline/raw/main/saved_models/naive_baseline_keras.h5
-    - name: Validate hearbaseline (torch)
-      run: |
-        hear-validator hearbaseline
-        hear-validator hearbaseline --model ./naive_baseline.pt
     - name: Validate hearbaseline (tensorflow)
       run: |
         hear-validator hearbaseline.tf.naive
         hear-validator hearbaseline.tf.naive --model ./naive_baseline_tf.npy
-    - name: Validate hearbaseline (keras)
-      run: |
-        hear-validator hearbaseline.keras.naive
-        hear-validator hearbaseline.keras.naive --model ./naive_baseline_keras.h5
-    - name: Validate hearbaseline.vqt
-      run: |
-        hear-validator hearbaseline.vqt
-    - name: Validate hearbaseline.wav2vec2
-      run: |
-        hear-validator hearbaseline.wav2vec2
-    - name: Validate hearbaseline.torchopenl3
-      run: |
-        hear-validator hearbaseline.torchopenl3
-    - name: Validate hearbaseline.torchcrepe
-      run: |
-        hear-validator hearbaseline.torchcrepe
