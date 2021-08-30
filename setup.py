@@ -31,9 +31,10 @@ setup(
         "speechbrain",
         "transformers==4.4.0",
         "torchcrepe",
+        "torchopenl3",
         # otherwise librosa breaks
         "numba==0.48",
-        #"numba>=0.49.0", # not directly required, pinned by Snyk to avoid a vulnerability
+        # "numba>=0.49.0", # not directly required, pinned by Snyk to avoid a vulnerability
     ],
     extras_require={
         "test": [
