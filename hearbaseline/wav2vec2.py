@@ -14,18 +14,33 @@ from speechbrain.lobes.models.huggingface_wav2vec import HuggingFaceWav2Vec2
 from torch import Tensor
 
 # HuggingFace model hub
-model_hub = "facebook/wav2vec2-base-960h"
+# Also try:
+# facebook/wav2vec2-base
+# facebook/wav2vec2-base-100k-voxpopuli
+# facebook/wav2vec2-base-960h
+# facebook/wav2vec2-large
+# facebook/wav2vec2-large-100k-voxpopuli
+# facebook/wav2vec2-large-960h
+# facebook/wav2vec2-large-960h-lv60
+# facebook/wav2vec2-large-960h-lv60-self
+# facebook/wav2vec2-large-robust
+# facebook/wav2vec2-large-robust-ft-libri-960h
+# facebook/wav2vec2-large-robust-ft-swbd-300h
+# facebook/wav2vec2-large-xlsr-53
 
 # Faiseq model url
 # model_url = "https://dl.fbaipublicfiles.com/fairseq/wav2vec/wav2vec_small.pt"
 
 
-def load_model(model_file_path: str = "") -> torch.nn.Module:
+def load_model(
+    model_file_path: str = "", model_hub: str = "facebook/wav2vec2-base-960h"
+) -> torch.nn.Module:
     """
     Returns a torch.nn.Module that produces embeddings for audio.
 
     Args:
         model_file_path: Ignored.
+        model_hub: Which wav2vec2 model to load from hugging face.
     Returns:
         Model
     """
@@ -37,7 +52,12 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
 
     # sample rate and embedding sizes are required model attributes for the HEAR API
     model.sample_rate = 16000
-    model.embedding_size = 768
+    if model_hub.startswith("facebook/wav2vec2-base"):
+        model.embedding_size = 768
+    elif model_hub.startswith("facebook/wav2vec2-large"):
+        model.embedding_size = 1024
+    else:
+        raise ValueError(f"Unknown embedding size for {model_hub}")
     model.scene_embedding_size = model.embedding_size
     model.timestamp_embedding_size = model.embedding_size
 
@@ -86,19 +106,25 @@ def get_timestamp_embeddings(
     audio_ms = int(audio.shape[1] / model.sample_rate * 1000)
 
     # samples => timestamps
+    #
+    # 4239 => 12
+    # 4240 => 13
+    #
     # 31439 => 97
     # 31440 => 98
+    #
+    # 32079 => 99
+    # 32080 => 100
     # This is weird that its 5ms, not half the hopsize of 20
     ntimestamps = (audio_ms - 5) // 20
 
-    # Also
-    # 32000 => 99
-    # 32080 => 100
-
-    # I don't know if this is their exact centering, but this matches
-    # their shape.
-    last_center = 12.5 + (ntimestamps - 1) * 20
-    timestamps = torch.arange(12.5, last_center + 20, 20)
+    # I don't know if this is their exact centering
+    # their shape. This is maybe buggy for 31680 (98 timestamps) unless
+    # we start on at 20ms.
+    # https://github.com/speechbrain/speechbrain/issues/966
+    # https://discuss.huggingface.co/t/wav2vec2-feature-timestamps-not-words/9589
+    last_center = 15 + (ntimestamps - 1) * 20
+    timestamps = torch.arange(15, last_center + 20, 20)
     assert len(timestamps) == ntimestamps
     timestamps = timestamps.expand((embeddings.shape[0], timestamps.shape[0]))
     assert timestamps.shape[1] == embeddings.shape[1]
