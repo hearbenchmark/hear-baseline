@@ -91,9 +91,16 @@ def get_timestamp_embeddings(
     # Pad by up to one frame
     # (torchvggish.vggish_params.EXAMPLE_WINDOW_SECONDS),
     # so that we get a timestamp at the end of audio
+    hop_length_samples = int(
+        torchvggish.vggish_params.EXAMPLE_WINDOW_SECONDS * model.sample_rate
+    )
     padded_audio = torch.nn.functional.pad(
         audio,
         (0, int(torchvggish.vggish_params.EXAMPLE_WINDOW_SECONDS * model.sample_rate)),
+        (
+            0,
+            hop_length_samples - audio.shape[1] % hop_length_samples,
+        ),
         mode="constant",
         value=0,
     )
@@ -110,18 +117,16 @@ def get_timestamp_embeddings(
     with torch.no_grad():
         embeddings = model(padded_audio)
 
-    # Length of the audio in MS
-    # audio_ms = audio.shape[1] / model.sample_rate * 1000
-    hop_length = int(torchvggish.vggish_params.EXAMPLE_HOP_SECONDS * 1000)  # noqa
-    # BUG: This sort of thing is likely to mess up the timestamps
-    # since we don't understand precisely how they frame.
-    # I don't know why this doesn't work
-    # ntimestamps = int(audio_ms / hop_length)
-    # so just hack it
-    ntimestamps = embeddings.shape[1]
+    hop_length_samples = int(
+        torchvggish.vggish_params.EXAMPLE_HOP_SECONDS * model.sample_rate
+    )
+    hop_length_ms = hop_length_samples * 1000 / model.sample_rate
+    ntimestamps = int(audio.shape[1] / hop_length_samples)
 
     last_center = int(hop_length * (ntimestamps + 0.5))
-    timestamps = torch.arange(hop_length // 2, last_center, hop_length).float()
+    timestamps = torch.arange(
+        hop_length_ms / 2, hop_length_ms + (ntimestamps - 0.5), hop_length_ms
+    )
     assert len(timestamps) == ntimestamps
     timestamps = timestamps.expand((embeddings.shape[0], timestamps.shape[0]))
     assert timestamps.shape[1] == embeddings.shape[1]
