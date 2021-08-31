@@ -40,12 +40,15 @@ class VggishWrapper(torch.nn.Module):
         return embeddings
 
 
-def load_model(model_file_path: str = "", hop_length: int = 960) -> torch.nn.Module:
+def load_model(model_file_path: str = "", hop_length: int = 25) -> torch.nn.Module:
     """
     Returns a torch.nn.Module that produces embeddings for audio.
 
     Args:
         model_file_path: Ignored.
+        hop_length: hop length in milliseconds. (Default: 25, even
+        though the vggish default is 960, so we can do timestamp
+        embeddings for event detection.)
     Returns:
         Model
     """
@@ -93,7 +96,7 @@ def get_timestamp_embeddings(
 
     # Length of the audio in MS
     # audio_ms = audio.shape[1] / model.sample_rate * 1000
-    hop_length = 960
+    hop_length = int(torchvggish.vggish_params.EXAMPLE_HOP_SECONDS * 1000)
     # BUG: This sort of thing is likely to mess up the timestamps
     # since we don't understand precisely how they frame.
     # I don't know why this doesn't work
