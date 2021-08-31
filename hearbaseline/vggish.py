@@ -5,6 +5,7 @@ vggish model for HEAR 2021 NeurIPS competition.
 from typing import Tuple
 
 import torch
+import torchvggish.vggish_params
 from torch import Tensor
 
 
@@ -39,7 +40,7 @@ class VggishWrapper(torch.nn.Module):
         return embeddings
 
 
-def load_model(model_file_path: str = "") -> torch.nn.Module:
+def load_model(model_file_path: str = "", hop_length: int = 960) -> torch.nn.Module:
     """
     Returns a torch.nn.Module that produces embeddings for audio.
 
@@ -48,6 +49,7 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
     Returns:
         Model
     """
+    torchvggish.vggish_params.EXAMPLE_HOP_SECONDS = hop_length / 1000
 
     return VggishWrapper()
 
