@@ -5,7 +5,6 @@ vggish model for HEAR 2021 NeurIPS competition.
 from typing import Tuple
 
 import torch
-import torchvggish.vggish_params
 from torch import Tensor
 
 
@@ -52,9 +51,13 @@ def load_model(model_file_path: str = "", hop_length: int = 25) -> torch.nn.Modu
     Returns:
         Model
     """
+    model = VggishWrapper()
+
+    # This must happen after the model is loaded, because it imports
+    # torchvggish (not even a pypi package).
     torchvggish.vggish_params.EXAMPLE_HOP_SECONDS = hop_length / 1000
 
-    return VggishWrapper()
+    return model
 
 
 def get_timestamp_embeddings(
