@@ -49,6 +49,8 @@ def load_model(model_file_path: str = "", hop_length: int = 25) -> torch.nn.Modu
         hop_length: hop length in milliseconds. (Default: 25, even
         though the vggish default is 960, so we can do timestamp
         embeddings for event detection.)
+            WARNING: Each time you load the model it clobbers the
+        previous global hop_length.
     Returns:
         Model
     """
@@ -86,17 +88,27 @@ def get_timestamp_embeddings(
             "audio input tensor must be 2D with shape (n_sounds, num_samples)"
         )
 
+    # Pad by up to one frame
+    # (torchvggish.vggish_params.EXAMPLE_WINDOW_SECONDS),
+    # so that we get a timestamp at the end of audio
+    padded_audio = torch.nn.functional.pad(
+        audio,
+        (0, int(torchvggish.vggish_params.EXAMPLE_WINDOW_SECONDS * model.sample_rate)),
+        mode="constant",
+        value=0,
+    )
+
     # Make sure the correct model type was passed in
     if not isinstance(model, VggishWrapper):
         raise ValueError(f"Model must be an instance of {VggishWrapper.__name__}")
 
     # Send the model to the same device that the audio tensor is on.
-    # model = model.to(audio.device)
+    # model = model.to(padded_audio.device)
 
     # Put the model into eval mode, and not computing gradients while in inference.
     # Iterate over all batches and accumulate the embeddings for each frame.
     with torch.no_grad():
-        embeddings = model(audio)
+        embeddings = model(padded_audio)
 
     # Length of the audio in MS
     # audio_ms = audio.shape[1] / model.sample_rate * 1000
@@ -109,7 +121,7 @@ def get_timestamp_embeddings(
     ntimestamps = embeddings.shape[1]
 
     last_center = int(hop_length * (ntimestamps + 0.5))
-    timestamps = torch.arange(hop_length // 2, last_center, hop_length)
+    timestamps = torch.arange(hop_length // 2, last_center, hop_length).float()
     assert len(timestamps) == ntimestamps
     timestamps = timestamps.expand((embeddings.shape[0], timestamps.shape[0]))
     assert timestamps.shape[1] == embeddings.shape[1]
