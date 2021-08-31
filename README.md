@@ -64,13 +64,6 @@ audio = torch.rand((2, model.sample_rate * 2))
 embeddings = hearbaseline.get_scene_embeddings(audio, model)
 ```
 
-If you want to modify hyperparameters in `torchvggish.vggish_params`,
-add the following `install_requires` to your `setup.py`:
-```
-"torchvggish @ git+https://github.com/neuralaudio/torchvggish.git@setup.py#egg=torchvggish",
-```
-and then `import torchvggish.vggish_params` in your code.
-
 The `get_timestamp_embeddings` method works exactly the same but returns an array
 of embeddings computed every 25ms over the duration of the input audio. An array
 of timestamps corresponding to each embedding is also returned.
