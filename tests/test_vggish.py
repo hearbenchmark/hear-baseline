@@ -19,7 +19,7 @@ class TestEmbeddingsTimestamps:
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.model50 = load_model(hop_length=50)
         self.model100 = load_model(hop_length=100)
-        self.audio = torch.rand(2, 8000, device=self.device) * 2 - 1
+        self.audio = torch.rand(2, 16000, device=self.device) * 2 - 1
         self.embeddings_ct50, self.ts_ct50 = get_timestamp_embeddings(
             audio=self.audio,
             model=self.model50,
