@@ -55,7 +55,7 @@ def load_model(model_file_path: str = "", hop_length: int = 25) -> torch.nn.Modu
 
     # This must happen after the model is loaded, because it imports
     # torchvggish (not even a pypi package).
-    torchvggish.vggish_params.EXAMPLE_HOP_SECONDS = hop_length / 1000
+    torchvggish.vggish_params.EXAMPLE_HOP_SECONDS = hop_length / 1000  # noqa
 
     return model
 
