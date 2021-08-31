@@ -1,6 +1,7 @@
 ![HEAR2021](https://neuralaudio.ai/assets/img/hear-header-sponsor.jpg)
 # HEAR 2021 Baseline
 
+
 A simple DSP-based audio embedding consisting of a Mel-frequency spectrogram followed
 by a random projection. Serves as the naive baseline model for the HEAR 2021 and implements
 the [common API](https://neuralaudio.ai/hear2021-holistic-evaluation-of-audio-representations.html#common-api)
