@@ -5,6 +5,7 @@ vggish model for HEAR 2021 NeurIPS competition.
 from typing import Tuple
 
 import torch
+import torchvggish.vggish_params
 from torch import Tensor
 
 

@@ -9,6 +9,7 @@ speechbrain
 transformers==4.4.0
 torchcrepe
 torchopenl3
+git+https://github.com/neuralaudio/torchvggish.git
 black
 pre-commit
 pytest
