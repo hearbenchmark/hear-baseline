@@ -35,6 +35,7 @@ setup(
         # otherwise librosa breaks
         "numba==0.48",
         # "numba>=0.49.0", # not directly required, pinned by Snyk to avoid a vulnerability
+        "scikit-learn>=0.24.2",  # not directly required, pinned by Snyk to avoid a vulnerability
     ],
     extras_require={
         "test": [
