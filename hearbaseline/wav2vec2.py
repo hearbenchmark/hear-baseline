@@ -52,7 +52,12 @@ def load_model(
 
     # sample rate and embedding sizes are required model attributes for the HEAR API
     model.sample_rate = 16000
-    model.embedding_size = 768
+    if model_hub.startswith("facebook/wav2vec2-base"):
+        model.embedding_size = 768
+    elif model_hub.startswith("facebook/wav2vec2-large"):
+        model.embedding_size = 1024
+    else:
+        raise ValueError(f"Unknown model_hub value {model_hub}")
     model.scene_embedding_size = model.embedding_size
     model.timestamp_embedding_size = model.embedding_size
 
