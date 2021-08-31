@@ -59,6 +59,8 @@ class TorchCrepeModel(torch.nn.Module):
                 model="full",
                 device=device,
                 pad=True,
+                # Otherwise dcase exceeds memory on a V100
+                batch_size=512,
             )
             # Convert 1 x frames x 32x64 embedding to 1 x frames x 32*64
             assert embedding.shape[0] == 1
