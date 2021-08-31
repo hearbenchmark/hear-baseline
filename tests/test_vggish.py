@@ -19,7 +19,6 @@ class TestEmbeddingsTimestamps:
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.model50 = load_model(hop_length=50)
         self.model100 = load_model(hop_length=100)
-        self.sample_rate = self.model.sample_rate
         self.audio = torch.rand(2, 8000, device=self.device) * 2 - 1
         self.embeddings_ct50, self.ts_ct50 = get_timestamp_embeddings(
             audio=self.audio,
@@ -31,10 +30,13 @@ class TestEmbeddingsTimestamps:
         )
 
     def teardown(self):
-        del self.model
+        del self.model50
+        del self.model100
         del self.audio
-        del self.embeddings_ct
-        del self.ts_ct
+        del self.embeddings_ct50
+        del self.ts_ct50
+        del self.embeddings_ct100
+        del self.ts_ct100
 
     def test_timestamps_spacing(self):
         # Test the spacing between the time stamp
