@@ -43,24 +43,25 @@ class RandomProjectionMelEmbedding(tf.Module):
         tf.random.set_seed(self.seed)
 
         # Create a Hann window buffer to apply to frames prior to FFT.
-        self.window = tf.Variable(tf.signal.hann_window(self.n_fft), trainable=False)
+        self.window = tf.Variable(tf.signal.hann_window(self.n_fft),
+                                  trainable=False)
 
         # Create a mel filter weight matrix.
         mel_scale: tf.Tensor = tf.convert_to_tensor(
-            librosa.filters.mel(self.sample_rate, n_fft=self.n_fft, n_mels=self.n_mels)
-        )
+            librosa.filters.mel(self.sample_rate,
+                                n_fft=self.n_fft,
+                                n_mels=self.n_mels))
         self.mel_scale = tf.Variable(mel_scale, trainable=False)
 
         # Projection matrix.
         self.projection = tf.Variable(
-            tf.random.uniform((self.n_mels, self.embedding_size))
-        )
+            tf.random.uniform((self.n_mels, self.embedding_size)))
 
     def __call__(self, x: tf.Tensor):
         x = tf.signal.rfft(x * self.window)
 
         # Convert to a power spectrum
-        x = tf.abs(x) ** 2.0
+        x = tf.abs(x)**2.0
 
         # Apply the mel-scale filter to the power spectrum.
         x = tf.matmul(x, tf.transpose(self.mel_scale))
@@ -94,7 +95,8 @@ def load_model(model_file_path: str = "") -> tf.Module:
         # https://www.tensorflow.org/api_docs/python/tf/saved_model/load
         model_weights = np.load(model_file_path)
         assert model_weights.shape == model.projection.shape
-        model.projection.assign(tf.convert_to_tensor(model_weights, dtype=tf.float32))
+        model.projection.assign(
+            tf.convert_to_tensor(model_weights, dtype=tf.float32))
 
     return model
 
@@ -121,8 +123,7 @@ def get_timestamp_embeddings(
     # Assert audio is of correct shape
     if audio.ndim != 2:
         raise ValueError(
-            "audio input tensor must be 2D with shape (n_sounds, num_samples)"
-        )
+            "audio input tensor must be 2D with shape (n_sounds, num_samples)")
 
     # Make sure the correct model type was passed in
     if not isinstance(model, RandomProjectionMelEmbedding):
@@ -130,9 +131,10 @@ def get_timestamp_embeddings(
             f"Model must be an instance of {RandomProjectionMelEmbedding.__name__}"
         )
 
-    frames, timestamps = frame_audio(
-        audio, frame_size=model.n_fft, hop_size=HOP_SIZE, sample_rate=model.sample_rate
-    )
+    frames, timestamps = frame_audio(audio,
+                                     frame_size=model.n_fft,
+                                     hop_size=HOP_SIZE,
+                                     sample_rate=model.sample_rate)
 
     # Combine all the frames from all audio batches together for batch processing
     # of frames. We'll unflatten these after processing through the model
@@ -141,12 +143,13 @@ def get_timestamp_embeddings(
 
     embeddings_list = []
     for i in range(0, frames.shape[0], BATCH_SIZE):
-        frame_batch = frames[i : i + BATCH_SIZE]
+        frame_batch = frames[i:i + BATCH_SIZE]
         embeddings_list.extend(model(frame_batch))
 
     # Unflatten all the frames back into audio batches
     embeddings = tf.stack(embeddings_list, axis=0)
-    embeddings = tf.reshape(embeddings, (audio_batches, num_frames, frame_size))
+    embeddings = tf.reshape(embeddings,
+                            (audio_batches, num_frames, frame_size))
 
     return embeddings, timestamps
 

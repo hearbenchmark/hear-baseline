@@ -7,9 +7,8 @@ from typing import Tuple
 import tensorflow as tf
 
 
-def frame_audio(
-    audio: tf.Tensor, frame_size: int, hop_size: float, sample_rate: int
-) -> Tuple[tf.Tensor, tf.Tensor]:
+def frame_audio(audio: tf.Tensor, frame_size: int, hop_size: float,
+                sample_rate: int) -> Tuple[tf.Tensor, tf.Tensor]:
     """
     Slices input audio into frames that are centered and occur every
     sample_rate * hop_size samples. We round to the nearest sample.
@@ -30,7 +29,8 @@ def frame_audio(
     # Zero pad the beginning and the end of the incoming audio with half a frame number
     # of samples. This centers the audio in the middle of each frame with respect to
     # the timestamps.
-    paddings = tf.constant([[0, 0], [frame_size // 2, frame_size - frame_size // 2]])
+    paddings = tf.constant([[0, 0],
+                            [frame_size // 2, frame_size - frame_size // 2]])
     audio = tf.pad(audio, paddings)
     num_padded_samples = audio.shape[1]
 

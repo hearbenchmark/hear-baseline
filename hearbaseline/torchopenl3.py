@@ -34,8 +34,7 @@ def load_model(
         Model
     """
     model = torchopenl3.core.load_audio_embedding_model(
-        input_repr, content_type, embedding_size
-    )
+        input_repr, content_type, embedding_size)
     if torch.cuda.is_available():
         model.cuda()
     model.eval()
@@ -48,8 +47,7 @@ def load_model(
     else:
         # center padding on start and end, so add 1
         model.scene_embedding_size = embedding_size * (
-            int(scene_embedding_audio_length_ms / hop_size_ms) + 1
-        )
+            int(scene_embedding_audio_length_ms / hop_size_ms) + 1)
 
     # model.center=center
     model.hop_size_ms = hop_size_ms
@@ -92,8 +90,7 @@ def get_timestamp_embeddings(
     # Assert audio is of correct shape
     if audio.ndim != 2:
         raise ValueError(
-            "audio input tensor must be 2D with shape (n_sounds, num_samples)"
-        )
+            "audio input tensor must be 2D with shape (n_sounds, num_samples)")
 
     # Make sure the correct model type was passed in
     if not isinstance(model, torchopenl3.models.PytorchOpenl3):
@@ -114,8 +111,8 @@ def get_timestamp_embeddings(
             audio,
             (
                 0,
-                int(model.sample_rate / 2)
-                - audio.shape[1] % int(model.sample_rate * model.hop_size_ms / 1000),
+                int(model.sample_rate / 2) - audio.shape[1] %
+                int(model.sample_rate * model.hop_size_ms / 1000),
             ),
             mode="constant",
             value=0,
@@ -152,15 +149,14 @@ def get_scene_embeddings(
         embeddings = torch.mean(embeddings, dim=1)
     else:
         # Trim or pad to, say, 4 seconds and concat the embeddings
-        pad_samples = int(
-            model.scene_embedding_audio_length_ms / 1000 * model.sample_rate
-        )
+        pad_samples = int(model.scene_embedding_audio_length_ms / 1000 *
+                          model.sample_rate)
         if audio.shape[1] > pad_samples:
             audio = audio[:, :pad_samples]
         else:
-            audio = torch.nn.functional.pad(
-                audio, (0, pad_samples - audio.shape[1]), "constant", 0
-            )
+            audio = torch.nn.functional.pad(audio,
+                                            (0, pad_samples - audio.shape[1]),
+                                            "constant", 0)
         assert audio.shape[1] == pad_samples
         embeddings, timestamps = get_timestamp_embeddings(audio, model)
         embeddings = embeddings.view(embeddings.shape[0], -1)

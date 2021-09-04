@@ -29,7 +29,8 @@ class VggishWrapper(torch.nn.Module):
         embeddings = []
         for i in range(x.shape[0]):
             # tensor => numpy sucks too
-            embedding = self.model(x[i].detach().cpu().numpy(), fs=self.sample_rate)
+            embedding = self.model(x[i].detach().cpu().numpy(),
+                                   fs=self.sample_rate)
             # This is weird too
             if embedding.ndim == 1:
                 assert embedding.shape[0] == 128
@@ -74,12 +75,12 @@ def get_timestamp_embeddings(
     # Assert audio is of correct shape
     if audio.ndim != 2:
         raise ValueError(
-            "audio input tensor must be 2D with shape (n_sounds, num_samples)"
-        )
+            "audio input tensor must be 2D with shape (n_sounds, num_samples)")
 
     # Make sure the correct model type was passed in
     if not isinstance(model, VggishWrapper):
-        raise ValueError(f"Model must be an instance of {VggishWrapper.__name__}")
+        raise ValueError(
+            f"Model must be an instance of {VggishWrapper.__name__}")
 
     # Send the model to the same device that the audio tensor is on.
     # model = model.to(audio.device)

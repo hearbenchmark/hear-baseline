@@ -42,12 +42,14 @@ class RandomProjectionMelEmbedding(tf.keras.Model):
         tf.random.set_seed(self.seed)
 
         # Create a Hann window buffer to apply to frames prior to FFT.
-        self.window = tf.Variable(tf.signal.hann_window(self.n_fft), trainable=False)
+        self.window = tf.Variable(tf.signal.hann_window(self.n_fft),
+                                  trainable=False)
 
         # Create a mel filter weight matrix.
         mel_scale: tf.Tensor = tf.convert_to_tensor(
-            librosa.filters.mel(self.sample_rate, n_fft=self.n_fft, n_mels=self.n_mels)
-        )
+            librosa.filters.mel(self.sample_rate,
+                                n_fft=self.n_fft,
+                                n_mels=self.n_mels))
         self.mel_scale = tf.Variable(mel_scale, trainable=False)
 
         # Projection matrix.
@@ -57,7 +59,7 @@ class RandomProjectionMelEmbedding(tf.keras.Model):
         x = tf.signal.rfft(x * self.window)
 
         # Convert to a power spectrum
-        x = tf.abs(x) ** 2.0
+        x = tf.abs(x)**2.0
 
         # Apply the mel-scale filter to the power spectrum.
         x = tf.matmul(x, tf.transpose(self.mel_scale))
@@ -121,9 +123,10 @@ def get_timestamp_embeddings(
             f"Model must be an instance of {RandomProjectionMelEmbedding.__name__}"
         )
 
-    frames, timestamps = frame_audio(
-        audio, frame_size=model.n_fft, hop_size=HOP_SIZE, sample_rate=model.sample_rate
-    )
+    frames, timestamps = frame_audio(audio,
+                                     frame_size=model.n_fft,
+                                     hop_size=HOP_SIZE,
+                                     sample_rate=model.sample_rate)
 
     # Combine all the frames from all audio batches together for batch processing
     # of frames. We'll unflatten these after processing through the model
@@ -132,12 +135,13 @@ def get_timestamp_embeddings(
 
     embeddings_list = []
     for i in range(0, frames.shape[0], BATCH_SIZE):
-        frame_batch = frames[i : i + BATCH_SIZE]
+        frame_batch = frames[i:i + BATCH_SIZE]
         embeddings_list.extend(model(frame_batch))
 
     # Unflatten all the frames back into audio batches
     embeddings = tf.stack(embeddings_list, axis=0)
-    embeddings = tf.reshape(embeddings, (audio_batches, num_frames, frame_size))
+    embeddings = tf.reshape(embeddings,
+                            (audio_batches, num_frames, frame_size))
 
     return embeddings, timestamps
 

@@ -9,9 +9,8 @@ import torch.nn.functional as F
 from torch import Tensor
 
 
-def frame_audio(
-    audio: Tensor, frame_size: int, hop_size: float, sample_rate: int
-) -> Tuple[Tensor, Tensor]:
+def frame_audio(audio: Tensor, frame_size: int, hop_size: float,
+                sample_rate: int) -> Tuple[Tensor, Tensor]:
     """
     Slices input audio into frames that are centered and occur every
     sample_rate * hop_size samples. We round to the nearest sample.

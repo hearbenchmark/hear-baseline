@@ -4,8 +4,8 @@ Baseline model for HEAR 2021 NeurIPS competition.
 This is simply a mel spectrogram followed by random projection.
 """
 
-from collections import OrderedDict
 import math
+from collections import OrderedDict
 from typing import Tuple
 
 import librosa
@@ -49,22 +49,22 @@ class RandomProjectionMelEmbedding(torch.nn.Module):
 
         # Create a mel filter buffer.
         mel_scale: Tensor = torch.tensor(
-            librosa.filters.mel(self.sample_rate, n_fft=self.n_fft, n_mels=self.n_mels)
-        )
+            librosa.filters.mel(self.sample_rate,
+                                n_fft=self.n_fft,
+                                n_mels=self.n_mels))
         self.register_buffer("mel_scale", mel_scale)
 
         # Projection matrices.
         normalization = math.sqrt(self.n_mels)
         self.projection = torch.nn.Parameter(
-            torch.rand(self.n_mels, self.embedding_size) / normalization
-        )
+            torch.rand(self.n_mels, self.embedding_size) / normalization)
 
     def forward(self, x: Tensor):
         # Compute the real-valued Fourier transform on windowed input signal.
         x = torch.fft.rfft(x * self.window)
 
         # Convert to a power spectrum.
-        x = torch.abs(x) ** 2.0
+        x = torch.abs(x)**2.0
 
         # Apply the mel-scale filter to the power spectrum.
         x = torch.matmul(x, self.mel_scale.transpose(0, 1))
@@ -95,8 +95,7 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
         if not isinstance(loaded_model, OrderedDict):
             raise TypeError(
                 f"Loaded model must be a model state dict of type OrderedDict. "
-                f"Received {type(loaded_model)}"
-            )
+                f"Received {type(loaded_model)}")
 
         model.load_state_dict(loaded_model)
 
@@ -125,8 +124,7 @@ def get_timestamp_embeddings(
     # Assert audio is of correct shape
     if audio.ndim != 2:
         raise ValueError(
-            "audio input tensor must be 2D with shape (n_sounds, num_samples)"
-        )
+            "audio input tensor must be 2D with shape (n_sounds, num_samples)")
 
     # Make sure the correct model type was passed in
     if not isinstance(model, RandomProjectionMelEmbedding):
@@ -150,9 +148,10 @@ def get_timestamp_embeddings(
 
     # We're using a DataLoader to help with batching of frames
     dataset = torch.utils.data.TensorDataset(frames)
-    loader = torch.utils.data.DataLoader(
-        dataset, batch_size=BATCH_SIZE, shuffle=False, drop_last=False
-    )
+    loader = torch.utils.data.DataLoader(dataset,
+                                         batch_size=BATCH_SIZE,
+                                         shuffle=False,
+                                         drop_last=False)
 
     # Put the model into eval mode, and not computing gradients while in inference.
     # Iterate over all batches and accumulate the embeddings for each frame.

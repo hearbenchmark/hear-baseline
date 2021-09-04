@@ -105,12 +105,12 @@ def get_timestamp_embeddings(
     # Assert audio is of correct shape
     if audio.ndim != 2:
         raise ValueError(
-            "audio input tensor must be 2D with shape (n_sounds, num_samples)"
-        )
+            "audio input tensor must be 2D with shape (n_sounds, num_samples)")
 
     # Make sure the correct model type was passed in
     if not isinstance(model, TorchCrepeModel):
-        raise ValueError(f"Model must be an instance of {TorchCrepeModel.__name__}")
+        raise ValueError(
+            f"Model must be an instance of {TorchCrepeModel.__name__}")
 
     # Send the model to the same device that the audio tensor is on.
     # model = model.to(audio.device)
@@ -128,14 +128,12 @@ def get_timestamp_embeddings(
     # hop_size) frames. The first frame is centered on sample index
     # 0.
     # https://github.com/maxrmorrison/torchcrepe/issues/14
-    timestamps = torch.tensor(
-        [i * HOP_SIZE for i in range(ntimestamps)], device=embeddings.device
-    )
+    timestamps = torch.tensor([i * HOP_SIZE for i in range(ntimestamps)],
+                              device=embeddings.device)
     assert len(timestamps) == ntimestamps
     timestamps = timestamps.expand((embeddings.shape[0], timestamps.shape[0]))
-    assert (
-        timestamps.shape[1] == embeddings.shape[1]
-    ), f"{timestamps.shape} vs {embeddings.shape}"
+    assert (timestamps.shape[1] == embeddings.shape[1]
+            ), f"{timestamps.shape} vs {embeddings.shape}"
 
     return embeddings, timestamps
 

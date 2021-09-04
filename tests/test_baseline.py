@@ -5,13 +5,9 @@ Tests for the baseline model
 import numpy as np
 import torch
 
-from hearbaseline import (
-    load_model,
-    get_timestamp_embeddings,
-)
-from hearbaseline.util import frame_audio
 import hearbaseline.naive as baseline
-
+from hearbaseline import get_timestamp_embeddings, load_model
+from hearbaseline.util import frame_audio
 
 torch.backends.cudnn.deterministic = True
 
@@ -64,7 +60,8 @@ class TestEmbeddingsTimestamps:
             model=self.model,
         )
 
-        assert torch.allclose(torch.cat([embeddingsa, embeddingsb]), embeddingsab)
+        assert torch.allclose(torch.cat([embeddingsa, embeddingsb]),
+                              embeddingsab)
 
     def test_embeddings_sliced(self):
         # Slice the audio to select every even audio in the batch. Produce the
@@ -174,9 +171,10 @@ class TestFraming:
         hop_size_ms = 25.0
 
         audio = torch.rand((num_audio, int(sr * duration)), device=device)
-        frames, timestamps = frame_audio(
-            audio, frame_size=frame_size, hop_size=hop_size_ms, sample_rate=sr
-        )
+        frames, timestamps = frame_audio(audio,
+                                         frame_size=frame_size,
+                                         hop_size=hop_size_ms,
+                                         sample_rate=sr)
 
         hop_size_samples = hop_size_ms / 1000.0 * sr
         expected_frames = int(sr * duration / hop_size_samples) + 1
@@ -185,4 +183,5 @@ class TestFraming:
         expected_timestamps = expected_timestamps * hop_size_ms
 
         assert expected_frames_shape == frames.shape
-        assert np.allclose(expected_timestamps, timestamps.detach().cpu().numpy())
+        assert np.allclose(expected_timestamps,
+                           timestamps.detach().cpu().numpy())

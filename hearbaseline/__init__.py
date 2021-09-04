@@ -1,1 +1,1 @@
-from .naive import load_model, get_scene_embeddings, get_timestamp_embeddings
+from .naive import get_scene_embeddings, get_timestamp_embeddings, load_model

@@ -6,10 +6,10 @@ The scene embeddings will be an average, i.e. only 84 dimensions.
 """
 
 import math
-import numpy as np
 from typing import Tuple
 
 import librosa
+import numpy as np
 import torch
 from torch import Tensor
 
@@ -46,8 +46,7 @@ class VQT(torch.nn.Module):
                     n_bins=self.embedding_size,
                     bins_per_octave=self.bins_per_octave,
                     fmin=self.fmin,
-                )
-            ).T
+                )).T
             embedding = torch.tensor(embedding, device=x.device)
             embeddings.append(embedding)
         embeddings = torch.stack(embeddings)
@@ -89,8 +88,7 @@ def get_timestamp_embeddings(
     # Assert audio is of correct shape
     if audio.ndim != 2:
         raise ValueError(
-            "audio input tensor must be 2D with shape (n_sounds, num_samples)"
-        )
+            "audio input tensor must be 2D with shape (n_sounds, num_samples)")
 
     # Make sure the correct model type was passed in
     if not isinstance(model, VQT):

@@ -17,7 +17,7 @@ setup(
         "Bug Tracker": "https://github.com/neuralaudio/hear-baseline/issues",
         "Source Code": "https://github.com/neuralaudio/hear-baseline",
     },
-    packages=find_packages(exclude=("tests",)),
+    packages=find_packages(exclude=("tests", )),
     python_requires=">=3.7",
     install_requires=[
         "librosa",
