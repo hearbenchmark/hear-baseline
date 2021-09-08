@@ -8,6 +8,7 @@ import torch
 from hearbaseline import (
     load_model,
     get_timestamp_embeddings,
+    get_scene_embeddings,
 )
 from hearbaseline.util import frame_audio
 import hearbaseline.naive as baseline
@@ -26,7 +27,7 @@ class TestEmbeddingsTimestamps:
             audio=self.audio,
             model=self.model,
         )
-        self.embeddings_cs, self.ts_cs = get_scene_embeddings(
+        self.embeddings_cs = get_scene_embeddings(
             audio=self.audio,
             model=self.model,
         )
@@ -37,7 +38,6 @@ class TestEmbeddingsTimestamps:
         del self.embeddings_ct
         del self.ts_ct
         del self.embeddings_cs
-        del self.ts_cs
 
     def test_embeddings_replicability(self):
         # Test if all the embeddings are replicable
@@ -48,12 +48,11 @@ class TestEmbeddingsTimestamps:
         assert torch.allclose(self.embeddings_ct, embeddings_ct)
         assert torch.allclose(self.ts_ct, ts_ct)
 
-        embeddings_cs, ts_cs = get_scene_embeddings(
+        embeddings_cs = get_scene_embeddings(
             audio=self.audio,
             model=self.model,
         )
         assert torch.allclose(self.embeddings_cs, embeddings_cs)
-        assert torch.allclose(self.ts_cs, ts_cs)
 
     def test_embeddings_batched(self):
         # methodA - Pass two audios individually and get embeddings. methodB -
@@ -133,7 +132,6 @@ class TestEmbeddingsTimestamps:
     def test_timestamps_shape(self):
         # Make sure the timestamps have the correct shape
         assert self.embeddings_ct.shape[:2] == self.ts_ct.shape
-        assert self.embeddings_cs.shape[:2] == self.ts_cs.shape
 
     def test_embeddings_nan(self):
         # Test for null values in the embeddings.
@@ -149,14 +147,11 @@ class TestEmbeddingsTimestamps:
         # Test the beginning of the time stamp. Should be zero for all
         # timestamps in the batch
         assert torch.all(self.ts_ct[:, 0] == 0)
-        assert torch.all(self.ts_cs[:, 0] == 0)
 
     def test_timestamps_spacing(self):
         # Test the spacing between the time stamp
         diff = torch.diff(self.ts_ct)
         assert torch.all(torch.mean(diff) - self.ts_ct[:, 1] < 1e-5)
-        diff = torch.diff(self.ts_cs)
-        assert torch.all(torch.mean(diff) - self.ts_cs[:, 1] < 1e-5)
 
 
 class TestModel:
