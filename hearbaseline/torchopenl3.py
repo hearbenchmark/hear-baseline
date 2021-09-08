@@ -50,7 +50,7 @@ def load_model(
     else:
         # center padding on start and end, so add 1
         model.scene_embedding_size = embedding_size * (
-            int(scene_embedding_audio_length_ms / hop_size_ms) + 1
+            int(scene_embedding_audio_length_ms / TIMESTAMP_HOP_SIZE) + 1
         )
 
     # model.center=center

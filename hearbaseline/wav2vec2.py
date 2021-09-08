@@ -107,8 +107,8 @@ def get_timestamp_embeddings(
 
     # It's a bit hard to determine the timestamps, but here is a
     # decent shot at it.
-    # See also: https://github.com/speechbrain/speechbrain/issues/966#issuecomment-914492048
-    # https://github.com/speechbrain/speechbrain/blob/98f90f82acc327a8180f3591135a18e278d3e0e2/speechbrain/alignment/ctc_segmentation.py#L413-L419
+    # See also: https://github.com/speechbrain/speechbrain/issues/966#issuecomment-914492048 # noqa
+    # https://github.com/speechbrain/speechbrain/blob/98f90f82acc327a8180f3591135a18e278d3e0e2/speechbrain/alignment/ctc_segmentation.py#L413-L419 # noqa
 
     # samples => timestamps
     # 31439 => 97

@@ -88,7 +88,7 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
 def get_timestamp_embeddings(
     audio: Tensor,
     model: torch.nn.Module,
-    hop_size_samples: Int = TIMESTAMP_HOP_SIZE_SAMPLES,
+    hop_size_samples: int = TIMESTAMP_HOP_SIZE_SAMPLES,
 ) -> Tuple[Tensor, Tensor]:
     """
     This function returns embeddings at regular intervals centered at timestamps. Both
@@ -125,7 +125,8 @@ def get_timestamp_embeddings(
     with torch.no_grad():
         embeddings = model(audio, hop_size_samples)
 
-    ntimestamps = audio.shape[1] // HOP_SIZE_SAMPLES + 1
+    ntimestamps = audio.shape[1] // hop_size_samples + 1
+    hop_size = hop_size_samples * SAMPLE_RATE // 1000
 
     # By default, the audio is padded with window_size // 2 zeros
     # on both sides. So a signal x will produce 1 + int(len(x) //
@@ -133,7 +134,7 @@ def get_timestamp_embeddings(
     # 0.
     # https://github.com/maxrmorrison/torchcrepe/issues/14
     timestamps = torch.tensor(
-        [i * HOP_SIZE for i in range(ntimestamps)], device=embeddings.device
+        [i * hop_size for i in range(ntimestamps)], device=embeddings.device
     )
     assert len(timestamps) == ntimestamps
     timestamps = timestamps.expand((embeddings.shape[0], timestamps.shape[0]))
