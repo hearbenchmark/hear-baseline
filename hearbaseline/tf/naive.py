@@ -113,6 +113,8 @@ def get_timestamp_embeddings(
         audio: n_sounds x n_samples of mono audio in the range [-1, 1].
         model: Loaded model.
         hop_size: Hop size in milliseconds.
+            NOTE: Not required by the HEAR API. We add this optional parameter
+            to improve the efficiency of scene embedding.
 
     Returns:
         - Tensor: embeddings, A float32 Tensor with shape (n_sounds, n_timestamp,
