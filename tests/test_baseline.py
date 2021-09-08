@@ -125,7 +125,6 @@ class TestEmbeddingsTimestamps:
         hop_size_samples = int(hop_size_ms / 1000.0 * self.sample_rate)
         assert self.embeddings_cs.shape == (
             64,
-            96000 // hop_size_samples + 1,
             int(4096),
         )
 
