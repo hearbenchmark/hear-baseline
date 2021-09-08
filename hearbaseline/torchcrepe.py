@@ -125,7 +125,7 @@ def get_timestamp_embeddings(
         embeddings = model(audio, hop_size_samples)
 
     ntimestamps = audio.shape[1] // hop_size_samples + 1
-    hop_size = hop_size_samples * SAMPLE_RATE // 1000
+    hop_size = hop_size_samples * 1000 // SAMPLE_RATE
 
     # By default, the audio is padded with window_size // 2 zeros
     # on both sides. So a signal x will produce 1 + int(len(x) //
