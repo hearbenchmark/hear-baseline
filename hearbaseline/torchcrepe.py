@@ -69,8 +69,7 @@ class TorchCrepeModel(torch.nn.Module):
             assert embedding.ndim == 4
             embedding = embedding.view((1, embedding.shape[1], -1))
             embeddings.append(embedding)
-        embeddings = torch.cat(embeddings)
-        return embeddings
+        return torch.cat(embeddings)
 
 
 def load_model(model_file_path: str = "") -> torch.nn.Module:
