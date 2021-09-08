@@ -9,6 +9,9 @@ import torch
 import torchopenl3
 from torch import Tensor
 
+TIMESTAMP_HOP_SIZE = 50
+SCENE_HOP_SIZE = 250
+
 
 def load_model(
     model_file_path: str = "",
@@ -16,7 +19,6 @@ def load_model(
     content_type="music",
     embedding_size=6144,
     center=True,
-    hop_size_ms=50,
     batch_size=32,
     verbose=False,
     # Concatenate, don't mean, to get timestamp embeddings
@@ -48,11 +50,10 @@ def load_model(
     else:
         # center padding on start and end, so add 1
         model.scene_embedding_size = embedding_size * (
-            int(scene_embedding_audio_length_ms / hop_size_ms) + 1
+            int(scene_embedding_audio_length_ms / TIMESTAMP_HOP_SIZE) + 1
         )
 
     # model.center=center
-    model.hop_size_ms = hop_size_ms
     # model.batch_size=batch_size
     # model.verbose=verbose
     model.scene_embedding_mean = scene_embedding_mean
@@ -63,7 +64,6 @@ def load_model(
         sr=model.sample_rate,
         model=model,
         center=center,
-        hop_size=hop_size_ms / 1000,
         batch_size=batch_size,
         verbose=verbose,
     )
@@ -73,6 +73,7 @@ def load_model(
 def get_timestamp_embeddings(
     audio: Tensor,
     model: torch.nn.Module,
+    hop_size: float = TIMESTAMP_HOP_SIZE,
 ) -> Tuple[Tensor, Tensor]:
     """
     This function returns embeddings at regular intervals centered at timestamps. Both
@@ -81,6 +82,7 @@ def get_timestamp_embeddings(
     Args:
         audio: n_sounds x n_samples of mono audio in the range [-1, 1].
         model: Loaded model.
+        hop_size: Hop size in milliseconds.
 
     Returns:
         - Tensor: embeddings, A float32 Tensor with shape (n_sounds, n_timestamps,
@@ -115,12 +117,14 @@ def get_timestamp_embeddings(
             (
                 0,
                 int(model.sample_rate / 2)
-                - audio.shape[1] % int(model.sample_rate * model.hop_size_ms / 1000),
+                - audio.shape[1] % int(model.sample_rate * hop_size / 1000),
             ),
             mode="constant",
             value=0,
         )
-        embeddings, timestamps = model.get_audio_embedding(padded_audio)
+        embeddings, timestamps = model.get_audio_embedding(
+            padded_audio, hop_size=hop_size / 1000
+        )
 
     # seconds to ms
     timestamps = timestamps * 1000
@@ -148,7 +152,7 @@ def get_scene_embeddings(
             (n_sounds, model.scene_embedding_size).
     """
     if model.scene_embedding_mean:
-        embeddings, _ = get_timestamp_embeddings(audio, model)
+        embeddings, _ = get_timestamp_embeddings(audio, model, hop_size=SCENE_HOP_SIZE)
         embeddings = torch.mean(embeddings, dim=1)
     else:
         # Trim or pad to, say, 4 seconds and concat the embeddings
@@ -162,6 +166,8 @@ def get_scene_embeddings(
                 audio, (0, pad_samples - audio.shape[1]), "constant", 0
             )
         assert audio.shape[1] == pad_samples
-        embeddings, timestamps = get_timestamp_embeddings(audio, model)
+        embeddings, timestamps = get_timestamp_embeddings(
+            audio, model, hop_size=SCENE_HOP_SIZE
+        )
         embeddings = embeddings.view(embeddings.shape[0], -1)
     return embeddings

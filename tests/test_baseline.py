@@ -8,6 +8,7 @@ import torch
 from hearbaseline import (
     load_model,
     get_timestamp_embeddings,
+    get_scene_embeddings,
 )
 from hearbaseline.util import frame_audio
 import hearbaseline.naive as baseline
@@ -26,21 +27,32 @@ class TestEmbeddingsTimestamps:
             audio=self.audio,
             model=self.model,
         )
+        self.embeddings_cs = get_scene_embeddings(
+            audio=self.audio,
+            model=self.model,
+        )
 
     def teardown(self):
         del self.model
         del self.audio
         del self.embeddings_ct
         del self.ts_ct
+        del self.embeddings_cs
 
     def test_embeddings_replicability(self):
         # Test if all the embeddings are replicable
-        embeddings_ct, _ = get_timestamp_embeddings(
+        embeddings_ct, ts_ct = get_timestamp_embeddings(
             audio=self.audio,
             model=self.model,
         )
-
         assert torch.allclose(self.embeddings_ct, embeddings_ct)
+        assert torch.allclose(self.ts_ct, ts_ct)
+
+        embeddings_cs = get_scene_embeddings(
+            audio=self.audio,
+            model=self.model,
+        )
+        assert torch.allclose(self.embeddings_cs, embeddings_cs)
 
     def test_embeddings_batched(self):
         # methodA - Pass two audios individually and get embeddings. methodB -
@@ -102,11 +114,17 @@ class TestEmbeddingsTimestamps:
         # num_frames to be equal to the number of full audio frames that can fit into
         # the audio sample. The centered example is padded with frame_size (4096) number
         # of samples, so we don't need to subtract that in that test.
-        hop_size_ms = baseline.HOP_SIZE
+        hop_size_ms = baseline.TIMESTAMP_HOP_SIZE
         hop_size_samples = int(hop_size_ms / 1000.0 * self.sample_rate)
         assert self.embeddings_ct.shape == (
             64,
             96000 // hop_size_samples + 1,
+            int(4096),
+        )
+        hop_size_ms = baseline.SCENE_HOP_SIZE
+        hop_size_samples = int(hop_size_ms / 1000.0 * self.sample_rate)
+        assert self.embeddings_cs.shape == (
+            64,
             int(4096),
         )
 
@@ -117,10 +135,12 @@ class TestEmbeddingsTimestamps:
     def test_embeddings_nan(self):
         # Test for null values in the embeddings.
         assert not torch.any(torch.isnan(self.embeddings_ct))
+        assert not torch.any(torch.isnan(self.embeddings_cs))
 
     def test_embeddings_type(self):
         # Test the data type of the embeddings.
         assert self.embeddings_ct.dtype == torch.float32
+        assert self.embeddings_cs.dtype == torch.float32
 
     def test_timestamps_begin(self):
         # Test the beginning of the time stamp. Should be zero for all

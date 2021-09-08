@@ -35,8 +35,7 @@ class VggishWrapper(torch.nn.Module):
                 assert embedding.shape[0] == 128
                 embedding = embedding.view(1, 128)
             embeddings.append(embedding)
-        embeddings = torch.stack(embeddings)
-        return embeddings
+        return torch.stack(embeddings)
 
 
 def load_model(model_file_path: str = "") -> torch.nn.Module:
