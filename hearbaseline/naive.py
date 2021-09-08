@@ -16,7 +16,8 @@ from torch import Tensor
 from hearbaseline.util import frame_audio
 
 # Default hop_size in milliseconds
-HOP_SIZE = 25
+TIMESTAMP_HOP_SIZE = 50
+SCENE_HOP_SIZE = 250
 
 # Number of frames to batch process for timestamp embeddings
 BATCH_SIZE = 512
@@ -106,6 +107,7 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
 def get_timestamp_embeddings(
     audio: Tensor,
     model: torch.nn.Module,
+    hop_size: float = TIMESTAMP_HOP_SIZE,
 ) -> Tuple[Tensor, Tensor]:
     """
     This function returns embeddings at regular intervals centered at timestamps. Both
@@ -114,6 +116,7 @@ def get_timestamp_embeddings(
     Args:
         audio: n_sounds x n_samples of mono audio in the range [-1, 1].
         model: Loaded model.
+        hop_size: Hop size in milliseconds.
 
     Returns:
         - Tensor: embeddings, A float32 Tensor with shape (n_sounds, n_timestamps,
@@ -142,7 +145,7 @@ def get_timestamp_embeddings(
     frames, timestamps = frame_audio(
         audio,
         frame_size=model.n_fft,
-        hop_size=HOP_SIZE,
+        hop_size=hop_size,
         sample_rate=RandomProjectionMelEmbedding.sample_rate,
     )
     audio_batches, num_frames, frame_size = frames.shape
@@ -186,6 +189,6 @@ def get_scene_embeddings(
         - embeddings, A float32 Tensor with shape
             (n_sounds, model.scene_embedding_size).
     """
-    embeddings, _ = get_timestamp_embeddings(audio, model)
+    embeddings, _ = get_timestamp_embeddings(audio, model, hop_size=SCENE_HOP_SIZE)
     embeddings = torch.mean(embeddings, dim=1)
     return embeddings

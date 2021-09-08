@@ -33,7 +33,7 @@ from torch import Tensor
 
 
 def load_model(
-    model_file_path: str = "", model_hub: str = "facebook/wav2vec2-base-960h"
+    model_file_path: str = "", model_hub: str = "facebook/wav2vec2-large-100k-voxpopuli"
 ) -> torch.nn.Module:
     """
     Returns a torch.nn.Module that produces embeddings for audio.
@@ -104,6 +104,11 @@ def get_timestamp_embeddings(
 
     # Length of the audio in MS
     audio_ms = int(audio.shape[1] / model.sample_rate * 1000)
+
+    # It's a bit hard to determine the timestamps, but here is a
+    # decent shot at it.
+    # See also: https://github.com/speechbrain/speechbrain/issues/966#issuecomment-914492048
+    # https://github.com/speechbrain/speechbrain/blob/98f90f82acc327a8180f3591135a18e278d3e0e2/speechbrain/alignment/ctc_segmentation.py#L413-L419
 
     # samples => timestamps
     # 31439 => 97

@@ -12,7 +12,8 @@ import tensorflow as tf
 from hearbaseline.tf.util import frame_audio
 
 # Default hop_size in milliseconds
-HOP_SIZE = 25
+TIMESTAMP_HOP_SIZE = 50
+SCENE_HOP_SIZE = 250
 
 # Number of frames to batch process for timestamp embeddings
 BATCH_SIZE = 512
@@ -94,6 +95,7 @@ def load_model(model_file_path: str = "") -> tf.keras.Model:
 def get_timestamp_embeddings(
     audio: tf.Tensor,
     model: tf.keras.Model,
+    hop_size: float = TIMESTAMP_HOP_SIZE,
 ) -> Tuple[tf.Tensor, tf.Tensor]:
     """
     This function returns embeddings at regular intervals centered at timestamps. Both
@@ -102,6 +104,7 @@ def get_timestamp_embeddings(
     Args:
         audio: n_sounds x n_samples of mono audio in the range [-1, 1].
         model: Loaded model.
+        hop_size: Hop size in milliseconds.
 
     Returns:
         - Tensor: embeddings, A float32 Tensor with shape (n_sounds, n_timestamp,
@@ -122,7 +125,7 @@ def get_timestamp_embeddings(
         )
 
     frames, timestamps = frame_audio(
-        audio, frame_size=model.n_fft, hop_size=HOP_SIZE, sample_rate=model.sample_rate
+        audio, frame_size=model.n_fft, hop_size=hop_size, sample_rate=model.sample_rate
     )
 
     # Combine all the frames from all audio batches together for batch processing
@@ -160,6 +163,6 @@ def get_scene_embeddings(
         - embeddings, A float32 Tensor with shape
             (n_sounds, model.scene_embedding_size).
     """
-    embeddings, _ = get_timestamp_embeddings(audio, model)
+    embeddings, _ = get_timestamp_embeddings(audio, model, hop_size=SCENE_HOP_SIZE)
     embeddings = tf.reduce_mean(embeddings, axis=1)
     return embeddings

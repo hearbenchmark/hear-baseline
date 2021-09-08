@@ -10,9 +10,11 @@ from torch import Tensor
 
 SAMPLE_RATE = 16000
 
-HOP_SIZE = 25
+TIMESTAMP_HOP_SIZE = 50
+SCENE_HOP_SIZE = 250
 
-HOP_SIZE_SAMPLES = (SAMPLE_RATE * HOP_SIZE) // 1000
+TIMESTAMP_HOP_SIZE_SAMPLES = (SAMPLE_RATE * TIMESTAMP_HOP_SIZE) // 1000
+SCENE_HOP_SIZE_SAMPLES = (SAMPLE_RATE * SCENE_HOP_SIZE) // 1000
 
 
 class TorchCrepeModel(torch.nn.Module):
@@ -37,7 +39,7 @@ class TorchCrepeModel(torch.nn.Module):
         else:
             torchcrepe.load.model(device="cpu", capacity="full")
 
-    def forward(self, x: Tensor):
+    def forward(self, x: Tensor, hop_size_samples: int):
         # Or do x.device?
         if torch.cuda.is_available():
             device = "cuda"
@@ -55,7 +57,7 @@ class TorchCrepeModel(torch.nn.Module):
             embedding = torchcrepe.embed(
                 audio=x[i].view(1, x.shape[1]),
                 sample_rate=self.sample_rate,
-                hop_length=HOP_SIZE_SAMPLES,
+                hop_length=hop_size_samples,
                 model="full",
                 device=device,
                 pad=True,
@@ -86,6 +88,7 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
 def get_timestamp_embeddings(
     audio: Tensor,
     model: torch.nn.Module,
+    hop_size_samples: Int = TIMESTAMP_HOP_SIZE_SAMPLES,
 ) -> Tuple[Tensor, Tensor]:
     """
     This function returns embeddings at regular intervals centered at timestamps. Both
@@ -94,6 +97,7 @@ def get_timestamp_embeddings(
     Args:
         audio: n_sounds x n_samples of mono audio in the range [-1, 1].
         model: Loaded model.
+        hop_size_samples: Hop size in samples.
 
     Returns:
         - Tensor: embeddings, A float32 Tensor with shape (n_sounds, n_timestamps,
@@ -119,7 +123,7 @@ def get_timestamp_embeddings(
     # Iterate over all batches and accumulate the embeddings for each frame.
     model.eval()
     with torch.no_grad():
-        embeddings = model(audio)
+        embeddings = model(audio, hop_size_samples)
 
     ntimestamps = audio.shape[1] // HOP_SIZE_SAMPLES + 1
 
@@ -161,6 +165,8 @@ def get_scene_embeddings(
         - embeddings, A float32 Tensor with shape
             (n_sounds, model.scene_embedding_size).
     """
-    embeddings, _ = get_timestamp_embeddings(audio, model)
+    embeddings, _ = get_timestamp_embeddings(
+        audio, model, hop_size_samples=SCENE_HOP_SIZE_SAMPLES
+    )
     embeddings = torch.mean(embeddings, dim=1)
     return embeddings
