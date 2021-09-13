@@ -19,7 +19,7 @@ SCENE_HOP_SIZE_SAMPLES = (SAMPLE_RATE * SCENE_HOP_SIZE) // 1000
 
 class TorchCrepeModel(torch.nn.Module):
     """
-    A pretty gross wrapper on torchcrepe, because of its implicit
+    A pretty gross wrapper on torchcrepe, because of its implicit singleton
     model loading: https://github.com/maxrmorrison/torchcrepe/issues/13
     """
 
