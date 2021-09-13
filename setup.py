@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from setuptools import find_packages, setup
 
-long_description = open("README.md", "r", encoding="utf-8").read()
+long_description = open("README.md", "r").read()
 
 setup(
     name="hearbaseline",
