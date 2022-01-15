@@ -28,7 +28,7 @@ setup(
         "torch",
         # For wav2vec2 model
         "speechbrain",
-        "transformers==4.4.0",
+        "transformers",
         "torchcrepe",
         "torchopenl3",
         # otherwise librosa breaks
