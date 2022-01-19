@@ -6,7 +6,7 @@ numpy==1.19.2
 tensorflow>=2.0
 torch
 speechbrain
-transformers==4.4.0
+transformers
 torchcrepe
 torchopenl3
 black
