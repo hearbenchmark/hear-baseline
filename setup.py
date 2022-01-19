@@ -23,7 +23,7 @@ setup(
         # otherwise librosa breaks
         "numba==0.48",
         # tf 2.6.0
-        "numpy==1.19.2",
+        "numpy==1.21.0",
         "tensorflow>=2.0",
         "torch",
         # For wav2vec2 model
