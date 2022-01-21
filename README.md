@@ -4,7 +4,7 @@ Several baseline audio embeddings that implement the [common API](https://neural
 required by the HEAR 2021 NeurIPS competition.
 
 Includes a simple DSP-based audio embedding consisting of a Mel-frequency spectrogram 
-followed by a random projectionm, implemented in PyTorch, TensorFlow, and Keras. 
+followed by a random projection, implemented in PyTorch, TensorFlow, and Keras. 
 
 Additionally, we wrap several benchmark audio embedding models.
 However, many of them are ineffecient because of limiting assumptions
