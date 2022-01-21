@@ -11,7 +11,7 @@ However, many of them are ineffecient because of limiting assumptions
 in the original implementation (e.g. only one audio file can be
 processed at a time using their high-level API).
 
-For the HEAR 2021 evaluation, `hearbasline.wav2vec2` and `hearbaseline.torchcrepe` baseline
+For the HEAR 2021 evaluation, `hearbaseline.wav2vec2` and `hearbaseline.torchcrepe` baseline
 embeddings were used.
 
 For full details on the HEAR 2021 NeurIPS competition please visit the
