@@ -1,6 +1,6 @@
 ![HEAR2021](https://neuralaudio.ai/assets/img/hear-header-sponsor.jpg)
 # HEAR 2021 Baseline
-Several baseline audio embeddings that implement the [common API](https://neuralaudio.ai/hear2021-holistic-evaluation-of-audio-representations.html#common-api)
+Several baseline audio embeddings that implement the [common API](https://neuralaudio.ai/hear2021-rules.html#common-api)
 required by the HEAR 2021 NeurIPS competition.
 
 Includes a simple DSP-based audio embedding consisting of a Mel-frequency spectrogram 
@@ -15,7 +15,7 @@ For the HEAR 2021 evaluation, `hearbaseline.wav2vec2` and `hearbaseline.torchcre
 embeddings were used.
 
 For full details on the HEAR 2021 NeurIPS competition please visit the
-[competition website.](https://neuralaudio.ai/hear2021-holistic-evaluation-of-audio-representations.html)
+[competition website.](https://neuralaudio.ai)
 
 ### Installation
 
@@ -71,7 +71,7 @@ The `get_timestamp_embeddings` method works exactly the same but returns an arra
 of embeddings computed every 25ms over the duration of the input audio. An array
 of timestamps corresponding to each embedding is also returned.
 
-See the [common API](https://neuralaudio.ai/hear2021-holistic-evaluation-of-audio-representations.html#common-api)
+See the [common API](https://neuralaudio.ai/hear2021-rules.html#common-api)
 for more details.
 
 ### Other Baselines
