@@ -6,7 +6,9 @@ numpy==1.19.2
 tensorflow>=2.0
 torch
 speechbrain
-transformers==4.16.1
+# HubertModel for wav2vec2 introduced in 4.7.0
+# https://github.com/huggingface/transformers/releases/tag/v4.7.0
+transformers>=4.7.0
 torchcrepe
 torchopenl3
 black
