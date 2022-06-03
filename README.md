@@ -1,7 +1,6 @@
-![HEAR2021](https://neuralaudio.ai/assets/img/hear-header-sponsor.jpg)
-# HEAR 2021 Baseline
-Several baseline audio embeddings that implement the [common API](https://neuralaudio.ai/hear2021-rules.html#common-api)
-required by the HEAR 2021 NeurIPS competition.
+# HEAR Baseline
+Several baseline audio embeddings that implement the [common API](https://hearbenchmark.com/hear-api.html)
+required by the HEAR Benchmark and 2021 HEAR NeurIPS competition.
 
 Includes a simple DSP-based audio embedding consisting of a Mel-frequency spectrogram 
 followed by a random projection, implemented in PyTorch, TensorFlow, and Keras. 
@@ -11,11 +10,11 @@ However, many of them are ineffecient because of limiting assumptions
 in the original implementation (e.g. only one audio file can be
 processed at a time using their high-level API).
 
-For the HEAR 2021 evaluation, `hearbaseline.wav2vec2` and `hearbaseline.torchcrepe` baseline
+For the HEAR Benchmark and 2021 NeurIPS evaluation, `hearbaseline.wav2vec2` and `hearbaseline.torchcrepe` baseline
 embeddings were used.
 
-For full details on the HEAR 2021 NeurIPS competition please visit the
-[competition website.](https://neuralaudio.ai)
+For full details on the HEAR Benchmark please visit the
+[benchmark website.](https://hearbenchmark.com)
 
 ### Installation
 
@@ -32,12 +31,12 @@ pip install hearbaseline
 This is the same method that will be used to by competition organizers when installing
 submissions to HEAR 2021.
 ```python
-git clone https://github.com/neuralaudio/hear-baseline.git
+git clone https://github.com/hearbenchmark/hear-baseline.git
 python3 -m pip install -e ./hear-baseline
 ```
 
 ### Naive Baseline Model
-The naive baseline model provides an example for implementing the HEAR 2021 common API
+The naive baseline model provides an example for implementing the HEAR common API
 using DSP-based techniques. It produces log-scaled Mel-frequency spectrograms using a
 256-band Mel filter. Each frame of the spectrogram is then projected to 4096
 dimensions using a random projection matrix. Weights for the projection matrix were
@@ -71,7 +70,7 @@ The `get_timestamp_embeddings` method works exactly the same but returns an arra
 of embeddings computed every 25ms over the duration of the input audio. An array
 of timestamps corresponding to each embedding is also returned.
 
-See the [common API](https://neuralaudio.ai/hear2021-rules.html#common-api)
+See the [common API](https://hearbenchmark.com/hear-api.html)
 for more details.
 
 ### Other Baselines
