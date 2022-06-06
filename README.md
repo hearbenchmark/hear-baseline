@@ -13,8 +13,7 @@ processed at a time using their high-level API).
 For the HEAR Benchmark and 2021 NeurIPS evaluation, `hearbaseline.wav2vec2` and `hearbaseline.torchcrepe` baseline
 embeddings were used.
 
-For full details on the HEAR Benchmark please visit the
-[benchmark website.](https://hearbenchmark.com)
+For full details on the HEAR Benchmark please visit https://hearbenchmark.com
 
 ### Installation
 
