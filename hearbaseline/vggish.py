@@ -5,6 +5,7 @@ vggish model for HEAR 2021 NeurIPS competition.
 from typing import Tuple
 
 import torch
+import torchvggish.vggish_params
 from torch import Tensor
 
 
@@ -38,17 +39,27 @@ class VggishWrapper(torch.nn.Module):
         return torch.stack(embeddings)
 
 
-def load_model(model_file_path: str = "") -> torch.nn.Module:
+def load_model(model_file_path: str = "", hop_length: int = 25) -> torch.nn.Module:
     """
     Returns a torch.nn.Module that produces embeddings for audio.
 
     Args:
         model_file_path: Ignored.
+        hop_length: hop length in milliseconds. (Default: 25, even
+        though the vggish default is 960, so we can do timestamp
+        embeddings for event detection.)
+            WARNING: Each time you load the model it clobbers the
+        previous global hop_length.
     Returns:
         Model
     """
+    model = VggishWrapper()
 
-    return VggishWrapper()
+    # This must happen after the model is loaded, because it imports
+    # torchvggish (not even a pypi package).
+    torchvggish.vggish_params.EXAMPLE_HOP_SECONDS = hop_length / 1000  # noqa
+
+    return model
 
 
 def get_timestamp_embeddings(
@@ -76,30 +87,45 @@ def get_timestamp_embeddings(
             "audio input tensor must be 2D with shape (n_sounds, num_samples)"
         )
 
+    # Pad by up to one frame
+    # (torchvggish.vggish_params.EXAMPLE_WINDOW_SECONDS),
+    # so that we get a timestamp at the end of audio
+    hop_length_samples = int(
+        torchvggish.vggish_params.EXAMPLE_WINDOW_SECONDS * model.sample_rate
+    )
+    padded_audio = torch.nn.functional.pad(
+        audio,
+        (0, int(torchvggish.vggish_params.EXAMPLE_WINDOW_SECONDS * model.sample_rate)),
+        (
+            0,
+            hop_length_samples - audio.shape[1] % hop_length_samples,
+        ),
+        mode="constant",
+        value=0,
+    )
+
     # Make sure the correct model type was passed in
     if not isinstance(model, VggishWrapper):
         raise ValueError(f"Model must be an instance of {VggishWrapper.__name__}")
 
     # Send the model to the same device that the audio tensor is on.
-    # model = model.to(audio.device)
+    # model = model.to(padded_audio.device)
 
     # Put the model into eval mode, and not computing gradients while in inference.
     # Iterate over all batches and accumulate the embeddings for each frame.
     with torch.no_grad():
-        embeddings = model(audio)
+        embeddings = model(padded_audio)
 
-    # Length of the audio in MS
-    # audio_ms = audio.shape[1] / model.sample_rate * 1000
-    hop_length = 960
-    # BUG: This sort of thing is likely to mess up the timestamps
-    # since we don't understand precisely how they frame.
-    # I don't know why this doesn't work
-    # ntimestamps = int(audio_ms / hop_length)
-    # so just hack it
-    ntimestamps = embeddings.shape[1]
+    hop_length_samples = int(
+        torchvggish.vggish_params.EXAMPLE_HOP_SECONDS * model.sample_rate
+    )
+    hop_length_ms = hop_length_samples * 1000 / model.sample_rate
+    ntimestamps = int(audio.shape[1] / hop_length_samples)
 
     last_center = int(hop_length * (ntimestamps + 0.5))
-    timestamps = torch.arange(hop_length // 2, last_center, hop_length)
+    timestamps = torch.arange(
+        hop_length_ms / 2, hop_length_ms + (ntimestamps - 0.5), hop_length_ms
+    )
     assert len(timestamps) == ntimestamps
     timestamps = timestamps.expand((embeddings.shape[0], timestamps.shape[0]))
     assert timestamps.shape[1] == embeddings.shape[1]

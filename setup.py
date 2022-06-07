@@ -31,6 +31,7 @@ setup(
         "transformers",
         "torchcrepe",
         "torchopenl3",
+        "torchvggish @ git+https://github.com/neuralaudio/torchvggish.git@setup.py#egg=torchvggish",
         # otherwise librosa breaks
         "numba==0.48",
         # "numba>=0.49.0", # not directly required, pinned by Snyk to avoid a vulnerability
