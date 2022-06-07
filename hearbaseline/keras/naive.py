@@ -40,8 +40,6 @@ class RandomProjectionMelEmbedding(tf.keras.Model):
     def __init__(self):
         super(RandomProjectionMelEmbedding, self).__init__()
 
-        tf.random.set_seed(self.seed)
-
         # Create a Hann window buffer to apply to frames prior to FFT.
         self.window = tf.Variable(tf.signal.hann_window(self.n_fft), trainable=False)
 
@@ -88,6 +86,12 @@ def load_model(model_file_path: str = "") -> tf.keras.Model:
 
     if model_file_path != "":
         model.load_weights(model_file_path)
+    else:
+        # Randomly initialize weights with normal initialization
+        rng = tf.random.Generator.from_seed(model.seed)
+        weights = rng.normal(model.projection.get_weights()[0].shape)
+        bias = tf.zeros(model.projection.get_weights()[1].shape)
+        model.projection.set_weights([weights, bias])
 
     return model
 

@@ -5,7 +5,6 @@ This is simply a mel spectrogram followed by random projection.
 """
 
 from collections import OrderedDict
-import math
 from typing import Tuple
 
 import librosa
@@ -43,7 +42,6 @@ class RandomProjectionMelEmbedding(torch.nn.Module):
 
     def __init__(self):
         super().__init__()
-        torch.random.manual_seed(self.seed)
 
         # Create a Hann window buffer to apply to frames prior to FFT.
         self.register_buffer("window", torch.hann_window(self.n_fft))
@@ -54,11 +52,8 @@ class RandomProjectionMelEmbedding(torch.nn.Module):
         )
         self.register_buffer("mel_scale", mel_scale)
 
-        # Projection matrices.
-        normalization = math.sqrt(self.n_mels)
-        self.projection = torch.nn.Parameter(
-            torch.rand(self.n_mels, self.embedding_size) / normalization
-        )
+        # Linear projection layer to get output embedding of size 4096
+        self.projection = torch.nn.Linear(self.n_mels, self.embedding_size, bias=False)
 
     def forward(self, x: Tensor):
         # Compute the real-valued Fourier transform on windowed input signal.
@@ -74,7 +69,7 @@ class RandomProjectionMelEmbedding(torch.nn.Module):
         x = torch.log(x + self.epsilon)
 
         # Apply projection to get a 4096 dimension embedding
-        embedding = x.matmul(self.projection)
+        embedding = self.projection(x)
 
         return embedding
 
@@ -100,6 +95,12 @@ def load_model(model_file_path: str = "") -> torch.nn.Module:
             )
 
         model.load_state_dict(loaded_model)
+    else:
+        # Randomly initialize weights from normal distribution
+        current_state = torch.get_rng_state()
+        torch.manual_seed(model.seed)
+        torch.nn.init.normal_(model.projection.weight)
+        torch.set_rng_state(current_state)
 
     return model
 

@@ -32,8 +32,11 @@ class TestKerasNaiveModel:
         assert model.scene_embedding_size == torch_model.scene_embedding_size
         assert model.timestamp_embedding_size == torch_model.scene_embedding_size
 
-        # Confirm that the projection matrix is the same shape
-        assert model.projection.get_weights()[0].shape == torch_model.projection.shape
+        # Confirm that the projection matrix is the same shape -- torch saves weights
+        # in transposed configuration.
+        layer_shape = model.projection.get_weights()[0].shape
+        assert layer_shape[0] == torch_model.projection.weight.shape[1]
+        assert layer_shape[1] == torch_model.projection.weight.shape[0]
         assert np.all(model.projection.get_weights()[1] == 0)
 
 
@@ -48,7 +51,9 @@ class TestKerasNaiveEmbeddings:
         bias = np.zeros(weights.shape[1])
 
         self.keras_model.projection.set_weights([weights, bias])
-        self.torch_model.projection.data = torch.tensor(weights, dtype=torch.float32)
+        self.torch_model.projection.weight.data = torch.tensor(
+            weights, dtype=torch.float32
+        ).T
 
     def teardown(self):
         del self.keras_model
@@ -59,7 +64,7 @@ class TestKerasNaiveEmbeddings:
         # Confirm that all the projection matrix values are the same
         assert np.all(
             self.keras_model.projection.get_weights()[0]
-            == self.torch_model.projection.detach().numpy()
+            == self.torch_model.projection.weight.detach().numpy().T
         )
 
         num_audio = 4
@@ -87,7 +92,7 @@ class TestKerasNaiveEmbeddings:
         # Confirm that all the projection matrix values are the same
         assert np.all(
             self.keras_model.projection.get_weights()[0]
-            == self.torch_model.projection.detach().numpy()
+            == self.torch_model.projection.weight.detach().numpy().T
         )
 
         num_audio = 4

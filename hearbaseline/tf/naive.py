@@ -41,8 +41,6 @@ class RandomProjectionMelEmbedding(tf.Module):
     def __init__(self, name=None):
         super().__init__(name=name)
 
-        tf.random.set_seed(self.seed)
-
         # Create a Hann window buffer to apply to frames prior to FFT.
         self.window = tf.Variable(tf.signal.hann_window(self.n_fft), trainable=False)
 
@@ -96,6 +94,11 @@ def load_model(model_file_path: str = "") -> tf.Module:
         model_weights = np.load(model_file_path)
         assert model_weights.shape == model.projection.shape
         model.projection.assign(tf.convert_to_tensor(model_weights, dtype=tf.float32))
+    else:
+        # Randomly initialize weights from normal distribution
+        rng = tf.random.Generator.from_seed(model.seed)
+        weights = rng.normal(model.projection.shape)
+        model.projection.assign(weights)
 
     return model
 
