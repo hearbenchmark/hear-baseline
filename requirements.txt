@@ -2,8 +2,8 @@ librosa
 # otherwise librosa breaks
 numba==0.48
 # tf 2.6.0
-numpy==1.19.2
-tensorflow>=2.0
+numpy==1.22.2
+tensorflow>=2.11.1
 torch
 speechbrain
 transformers
@@ -18,3 +18,6 @@ pytest-env
 numba==0.48
 #numba>=0.49.0 # not directly required, pinned by Snyk to avoid a vulnerability
 scikit-learn>=0.24.2 # not directly required, pinned by Snyk to avoid a vulnerability
+setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
+werkzeug>=2.3.8 # not directly required, pinned by Snyk to avoid a vulnerability
+wheel>=0.38.0 # not directly required, pinned by Snyk to avoid a vulnerability
